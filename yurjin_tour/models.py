@@ -76,6 +76,6 @@ class Contract(models.Model):
     
     
     def __str__(self):
-        return 'Договор №' + str(self.contract_num) + ' от ' + str(self.input_date) + self.client.tourist_last_name
+        return 'Договор №' + str(self.contract_num) + ' от ' + str(self.input_date) + ' - ' + self.client.tourist_last_name
 
     

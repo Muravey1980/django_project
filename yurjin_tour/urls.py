@@ -9,5 +9,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    # ex: /polls/
     url(r'^$', views.index, name='index'),
+    # ex: /contract/1/
+    url(r'^contract/(?P<contract_id>[0-9]+)/$', views.contract_detail, name='detail'),
 ]
