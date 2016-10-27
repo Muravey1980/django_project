@@ -7,13 +7,6 @@ from .models import Question
 
 # Create your views here.
 def index(request):
-<<<<<<< Upstream, based on django_project/master
-    return HttpResponse("Hello, world. You're at the polls index.")
-
-
-def detail(request, question_id):
-    return HttpResponse("You're looking at question %s." % question_id)
-=======
     #return HttpResponse("Hello, world. You're at the polls index.")
     #output = ', '.join([q.question_text for q in latest_question_list])
     #return HttpResponse(output)
@@ -28,8 +21,6 @@ def detail(request, question_id):
     return render(request, 'polls/index.html', context)
     
     
-
-
 def detail(request, question_id):
     #return HttpResponse("You're looking at question %s." % question_id)
     try:
@@ -37,7 +28,6 @@ def detail(request, question_id):
     except Question.DoesNotExist:
         raise Http404("Question does not exist")
     return render(request, 'polls/detail.html', {'question': question})
->>>>>>> 1a09349 just edit
 
 
 def results(request, question_id):
