@@ -5,7 +5,8 @@ from .models import Contract
 # Create your views here.
 def index(request):
     latest_contract_list = Contract.objects.order_by('-input_date')[:5]
-    output = ', '.join([str(q.contract_num) for q in latest_contract_list])
+    #output = ', '.join([str(q.contract_num) for q in latest_contract_list])
+    output = ', '.join([str(q) for q in latest_contract_list])
     return HttpResponse(output)
 
 
