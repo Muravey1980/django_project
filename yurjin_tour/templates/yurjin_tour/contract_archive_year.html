@@ -1,0 +1,6 @@
+{% extends 'yurjin_tour/base.html' %}
+{% block content %}
+    {% for date in date_list %}
+        <a href="{% url 'yurjin_tour:contract_archive_month' date|date:'Y' date|date:'m' %}">{{ date|date:"M"}}</a>
+    {% endfor %}
+{% endblock %}

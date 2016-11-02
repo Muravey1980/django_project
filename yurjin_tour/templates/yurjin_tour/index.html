@@ -1,0 +1,7 @@
+{% if latest_contract_list %}
+    {% for contract in latest_contract_list %}
+        <li><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">{{ contract }}</a></li>
+    {% endfor %}
+{% else %}
+    <p>No contracts are available.</p>
+{% endif %}
