@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from .models import Contract, Tourist, Manager
 
-from .forms import ContractForm
+#from .forms import ContractForm
 
 from django.template.context_processors import request
 
@@ -16,6 +16,7 @@ from django.template.context_processors import request
 class ContractArchiveIndexView(generic.ArchiveIndexView):
     model = Contract
     date_field = 'input_date'
+
 
 class ContractYearArchiveView(generic.YearArchiveView):
     model = Contract
@@ -28,6 +29,7 @@ class ContractMonthArchiveView(generic.MonthArchiveView):
     month_format = '%m' 
     context_object_name = 'contract_list'
     template_name = 'yurjin_tour/contract_list.html'
+
 
 class ContractListView(generic.ListView):
     #template_name = 'yurjin_tour/contract_list.html'
@@ -51,6 +53,7 @@ class ContractListView(generic.ListView):
 #    form = ContractForm(instance=contract)
 #    return render(request, 'yurjin_tour/contract_edit.html', {'form': form})
 
+
 class ContractEditView(generic.UpdateView):
     #template_name = 'yurjin_tour/contract_edit.html'
     #form_class = ContractForm(object)
@@ -58,13 +61,17 @@ class ContractEditView(generic.UpdateView):
     #def get_form(self, form_class):
     #    return form_class(object)
     
-    
     #contract=Contract.objects.get(pk=pk)
     #form = ContractForm(instance=contract)
+    model = Contract
+    #exclude = ('contract_id',)
+    fields = ['contract_num','input_date', 'client']
+    #localized_fields = "__all__"
     
-    def get_queryset(self):
-        return Contract.objects.filter(input_date__lte=timezone.now())
-
+    #form_class = ContractForm
+    
+    #def get_queryset(self):
+    #    return Contract.objects.filter(input_date__lte=timezone.now())
 
 
 
