@@ -10,16 +10,6 @@ class Country(models.Model):
     
     def __str__(self):
         return self.country_name
-
-class City(models.Model):
-    class Meta:
-        verbose_name = "Город"
-        verbose_name_plural = "Города"
-        
-    city_name = models.CharField(max_length=200, verbose_name="Название")
-    
-    def __str__(self):
-        return self.city_name
     
 
 class Airport(models.Model):
@@ -93,25 +83,41 @@ class Contract(models.Model):
         verbose_name = "Договор"
         verbose_name_plural = "Договоры"
         
-    contract_num = models.IntegerField(verbose_name="Номер договора")
-    input_date = models.DateField(blank=True, null=True, verbose_name="Дата ввода")
-    manager = models.ForeignKey(Manager, models.SET_NULL, blank=True, null=True, verbose_name="Менеджер")
-    office = models.ForeignKey(Office, models.SET_NULL, blank=True, null=True, verbose_name="Офис")
-    client = models.ForeignKey(Tourist, models.SET_NULL, blank=True, null=True, verbose_name="Клиент")
-    airport_from1 = models.ForeignKey(Airport, models.SET_NULL, related_name='airport_from1', blank=True, null=True, verbose_name="Аэропорт отправления туда")
-    airport_to1 = models.ForeignKey(Airport, models.SET_NULL, related_name='airport_to1', blank=True, null=True, verbose_name="Аэропорт прибытия туда")
-    airport_from2 = models.ForeignKey(Airport, models.SET_NULL, related_name='airport_from2', blank=True, null=True, verbose_name="Аэропорт отправления обратно")
-    airport_to2 = models.ForeignKey(Airport, models.SET_NULL, related_name='airport_to2', blank=True, null=True, verbose_name="Аэропорт прибытия обратно")
-    status = models.ForeignKey(Status, models.SET_NULL, blank=True, null=True, verbose_name="")
+    contract_num = models.IntegerField(unique = True, verbose_name="Номер договора")
+    #contract_num = models.IntegerField(unique_for_year = "input_date", True, verbose_name="Номер договора")
+    input_date = models.DateField(blank=True, null=True, auto_now_add=True, verbose_name="Дата ввода")
+    manager = models.ForeignKey(Manager, models.PROTECT, blank=True, null=True, verbose_name="Менеджер")
+    office = models.ForeignKey(Office, models.PROTECT, blank=True, null=True, verbose_name="Офис")
+    client = models.ForeignKey(Tourist, models.PROTECT, blank=True, null=True, verbose_name="Клиент")
+    airport_from1 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_from1', blank=True, null=True, verbose_name="Аэропорт отправления туда")
+    airport_to1 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_to1', blank=True, null=True, verbose_name="Аэропорт прибытия туда")
+    airport_from2 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_from2', blank=True, null=True, verbose_name="Аэропорт отправления обратно")
+    airport_to2 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_to2', blank=True, null=True, verbose_name="Аэропорт прибытия обратно")
+    status = models.ForeignKey(Status, models.PROTECT, blank=True, null=True, verbose_name="")
     conclusion_date = models.DateField(verbose_name="Дата подписания")
     date_begin = models.DateField(blank=True, null=True, verbose_name="Дата начала")
     date_finish = models.DateField(blank=True, null=True, verbose_name="Дата окончания")
     contract_sum = models.DecimalField(max_digits=6, decimal_places=2, default=0, null=True, verbose_name="Сумма контракта")
     prepayment_sum = models.DecimalField(max_digits=6, decimal_places=2, default=0, null=True, verbose_name="Сумма предоплаты")
-    signatory = models.ForeignKey(Manager, models.SET_NULL, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
+    signatory = models.ForeignKey(Manager, models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
     tourist_list = models.ManyToManyField(Tourist, related_name='tourist_list', verbose_name="Список туристов") 
     
     def __str__(self):
         return 'Договор №' + str(self.contract_num) + ' от ' + str(self.input_date) + ' - ' + str(self.client)
 
     
+    
+    
+    
+    
+    
+
+#class City(models.Model):
+#    class Meta:
+#        verbose_name = "Город"
+#        verbose_name_plural = "Города"
+#        
+#    city_name = models.CharField(max_length=200, verbose_name="Название")
+#    
+#    def __str__(self):
+#        return self.city_name

@@ -1,7 +1,12 @@
-{% if latest_contract_list %}
-    {% for contract in latest_contract_list %}
-        <li><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">{{ contract }}</a></li>
-    {% endfor %}
-{% else %}
-    <p>No contracts are available.</p>
-{% endif %}
+{% extends 'yurjin_tour/base.html' %}
+{% block title %}Индекс{% endblock %}
+
+{% block content %}
+    {% if latest_contract_list %}
+        {% for contract in latest_contract_list %}
+            <li><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">{{ contract }}</a></li>
+        {% endfor %}
+    {% else %}
+        <p>No contracts are available.</p>
+    {% endif %}
+{% endblock %}
