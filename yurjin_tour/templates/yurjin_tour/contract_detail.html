@@ -1,10 +1,5 @@
-<h1>{{ contract }}</h1>
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-<form action="{% url 'yurjin_tour:contract_save' contract.id %}" method="post">
-{% csrf_token %}
-{% for tourist in contract.tourist_list.all %}
-    <li>{{ tourist }}</li>
-{% endfor %}
-<input type="submit" value="Сохранить" />
-</form>
+{% extends 'yurjin_tour/base.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+    {% include 'yurjin_tour/contract_print.html' %}
+{% endblock %}

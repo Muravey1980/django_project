@@ -1,16 +1,9 @@
-{% extends 'yurjin_tour/base.html' %}
-{% block title %}Договоры{% endblock %}
-
-{% block content %}
-    
-
     {% if contract_list %}
-        <table><th>Договоры за {{month|date:'F o'}}</th>
+        <table ><th>Договоры за {{month|date:'F o'}}</th>
             {% for contract in contract_list %}
-                <tr><td>{{ contract }}</td><td><a href="{% url 'yurjin_tour:contract_detail' contract.id %}">Просмотреть</a></td><td><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a></td></tr>
+                <tr><td>{{ contract }}</td><td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td><td><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a></td></tr>
             {% endfor %}
         </table>
     {% else %}
         <p>No contracts are available.</p>
     {% endif %}
-{% endblock %}
