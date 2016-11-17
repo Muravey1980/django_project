@@ -3,6 +3,14 @@ import datetime
 
 
 # Create your models here.
+class TourAgency(models.Model):
+    class Meta:
+        verbose_name = "Турагентство"
+        verbose_name_plural = "Турагентства"
+        
+    country_name = models.CharField(max_length=200, verbose_name="Название")
+
+
 class Country(models.Model):
     class Meta:
         verbose_name = "Страна"
@@ -41,7 +49,7 @@ class TourOperator(models.Model):
     tourpom_member = models.BooleanField(verbose_name='Является членом ассоциации  "ТУРПОМОЩЬ"')
     inn = models.DecimalField(max_digits=12, decimal_places=0, verbose_name="ИНН")
     ogrn = models.DecimalField(max_digits=13, decimal_places=0, verbose_name="ОГРН") 
-    #assurer
+    #assurer_name
     
     def __str__(self):
         return self.operator_name
@@ -94,6 +102,7 @@ class Office(models.Model):
     office_name = models.CharField(max_length=200, verbose_name="Наименование")
     office_adddress = models.CharField(max_length=200, verbose_name="Адрес")
     office_city = models.CharField(max_length=50, verbose_name="Город")
+    #office_chief_r = models.CharField(max_length=200, verbose_name="В лице кого")
 
     def __str__(self):
         return self.office_name
@@ -119,9 +128,11 @@ class Tourist(models.Model):
     tourist_last_name = models.CharField(max_length=200, verbose_name="Фамилия")
     tourist_first_name = models.CharField(max_length=200, verbose_name="Имя")
     tourist_mid_name = models.CharField(max_length=200, verbose_name="Отчество")
+    tourist_birthdate = models.DateField(verbose_name="Дата рождения")
     tourist_passport = models.CharField(max_length=200, verbose_name="Паспорт РФ")
     tourist_international_passport = models.CharField(max_length=200, verbose_name="Загранпаспорт")
     tourist_international_name = models.CharField(max_length=200, verbose_name="Имя как в загранпаспорте")
+    tourist_international_passport_date_of_expiry=models.DateField(verbose_name="Срок действия загранпаспорта")
     tourist_email = models.EmailField(blank=True, null=True, verbose_name="e-mail")
     
     
@@ -164,7 +175,7 @@ class Contract(models.Model):
     signatory = models.ForeignKey(Manager, models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
     tourist_list = models.ManyToManyField(Tourist, related_name='tourist_list', verbose_name="Список туристов") 
     
-    tour_orepator = models.ForeignKey(TourOperator, models.PROTECT, blank=True, null=True, verbose_name="Туроператор")
+    tour_operator = models.ForeignKey(TourOperator, models.PROTECT, blank=True, null=True, verbose_name="Туроператор")
     resort =  models.ForeignKey(Resort, models.PROTECT, blank=True, null=True, verbose_name="Курорт")
     
     hotel_name = models.CharField(blank=True, max_length=200, verbose_name="Название отеля")
@@ -185,7 +196,8 @@ class Contract(models.Model):
     def __str__(self):
         return 'Договор №' + self.contract_date.strftime('%m%y') + '-' + str(self.contract_num) + ' от ' + str(self.contract_date) + ' - ' + str(self.client)
 
-    
+    def hotel_nights(self):
+        return (self.hotel_finish_date-self.hotel_begin_date).days
     
     
     

@@ -1,23 +1,71 @@
 <h1>Договор оказания услуг № {{contract.contract_date|date:"my" }}-{{contract.contract_num}}</h1>
-<table>
-<tr><td>{{ contract.office.office_city }}</td><td></td></tr>
+<table width="100%">
+<tr><td>{{ contract.office.office_city }}</td><td align="right">{{contract.contract_date}}</td></tr>
 </table>
-<p>Общество с ограниченной ответственностью  «Жемчужный берег», именуемое в дальнейшем «Исполнитель», в лице директора Лошкарева Юрия Александровича, с одной стороны, и  
-{{contract.client}}
+<p>{{contract.office.office_name}}
+, именуемое в дальнейшем «Исполнитель», в лице директора Лошкарева Юрия Александровича, с одной стороны, и  
+{{contract.client.tourist_last_name}} {{contract.client.tourist_first_name}} {{contract.client.tourist_mid_name}}
 , именуемый (ая) в дальнейшем «Клиент», с другой стороны, заключили настоящий договор о нижеследующем:</p>
 <h2>1. ПРЕДМЕТ ДОГОВОРА</h2>
 <p>1.1. Исполнитель, по поручению Клиента, за вознаграждение  принимает на себя обязательства  по бронированию, оплате, получению и передаче Клиенту выездных документов (ваучера, авиабилета, страховки) для осуществления туристической поездки в порядке и на условиях, изложенных в настоящем договоре, а Клиент обязуется оплатить подобранный и заказанный им тур в соответствии с ценой договора.</p>
 <h2>2. ОБЯЗАННОСТИ ИСПОЛНИТЕЛЯ.</h2>
 <p>2.1. Исполнитель, по поручению Клиента обязуется в соответствии с настоящим договором забронировать туристическую   поездку у туроператора
-{{contract.tour_orepator}}
+{{contract.tour_operator}}
 , в страну 
 {{contract.resort.country}}
 , город (курорт) 
 {{contract.resort}}
 , начиная с 
-{{contract.tour_begin_date|date:"«d» M% Y" }}
-«18» декабря  2016
- года по 
- «28» декабря 2016 
- 
- года для следующих туристов:</p>
+{{contract.tour_begin_date|date:"«d» E Y" }}
+года по
+{{contract.tour_finish_date|date:"«d» E Y" }}
+года для следующих туристов:</p>
+<table width="100%">
+<tr><th>Фамилия, имя туриста (латиница)</th><th>Дата рождения</th><th>Номер паспорта (загр.)</th><th>Срок действия паспорта</th></tr>
+{% for tourist in contract.tourist_list.all %}
+    <tr><td>{{ tourist.tourist_international_name }}</td><td>{{ tourist.tourist_birthdate }}</td><td>{{ tourist.tourist_international_passport }}</td><td>{{ tourist.tourist_international_passport_date_of_expiry }}</td></tr>
+{% endfor %}
+</table>
+<p>Туроператором по данному туру является
+{{contract.tour_operator.short_name}}<br>
+Реестровый номер:
+{{contract.tour_operator.registry_num}}<br> 
+Полное наименование:
+{{contract.tour_operator.full_name}}<br>
+Адрес (место нахождения):
+{{contract.tour_operator.fact_address}}<br>
+Почтовый адрес:
+{{contract.tour_operator.post_address}}<br>
+Адрес официального сайта в сети "Интернет":
+{{contract.tour_operator.www_address}}<br>
+Членство туроператора, осуществляющего деятельность в сфере выездного туризма, в объединении туроператоров в сфере выездного туризма:
+{{ contract.tour_operator.tourpom_member|yesno:"Да,Нет" }}<br>
+ИНН:
+{{contract.tour_operator.inn}}<br>
+ОГРН:
+{{contract.tour_operator.ogrn}}</p>
+<p>Финансовое обеспечение<br>
+Общий размер финансового обеспечения:<br>
+Документ:<br>
+Сфера туроператорской деятельности:<br>
+Размер финансового обеспечения:<br>
+Способ финансового обеспечения:<br>
+Документ:<br>
+Срок действия финансового обеспечения:<br>
+Наименование организации, предоставившей финансовое обеспечение:<br>
+Адрес (место нахождения) организации, предоставившей финансовое обеспечение:<br>
+Почтовый адрес организации, предоставившей финансовое обеспечение:
+</p>
+<p>2.2. В организацию поездки (заказанные Клиентом услуги) входит:
+2.2.1 Авиабилет(ы) (Автобус)  по маршруту Москва – Пхукет - Москва
+2.2.2.Проживание в отеле
+«{{contract.hotel_name}}»
+, в период с
+{{ contract.hotel_begin_date|date:"«d» E Y" }}
+года по
+{{ contract.hotel_finish_date|date:"«d» E Y" }}
+года, тип номера
+{{ contract.room_type }}
+, питание в отеле
+{{ contract.board }}
+, срок нахождения в отеле {{contract.hotel_nights}} ночей.
