@@ -1,14 +1,14 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Country, Resort, TourOperator, RoomType, Board, Airport, Office, Manager, Tourist, Status, Contract #, City
+from .models import Country, Resort, TourOperator, RoomType, Board, Airport, Office, Manager, Tourist, Status, Contract, TourAgency #, City
 
 admin.site.register(Country)
 admin.site.register(Resort)
 admin.site.register(TourOperator)
 admin.site.register(RoomType)
 admin.site.register(Board)
-#admin.site.register(City)
+admin.site.register(TourAgency)
 admin.site.register(Airport)
 admin.site.register(Office)
 admin.site.register(Manager)
