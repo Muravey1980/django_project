@@ -12,18 +12,56 @@ class Entity(models.Model):
     short_name = models.CharField(blank=True, max_length=200, verbose_name="Краткое наименование")
     fact_address = models.CharField(blank=True, max_length=200, verbose_name="Место нахождения")
     post_address = models.CharField(blank=True, max_length=200, verbose_name="Почтовый адрес")    
-    inn = models.DecimalField(blank=True, max_digits=12, decimal_places=0, verbose_name="ИНН")
-    ogrn = models.DecimalField(blank=True, max_digits=13, decimal_places=0, verbose_name="ОГРН")
+    inn = models.DecimalField(null=True, blank=True, max_digits=12, decimal_places=0, verbose_name="ИНН")
+    kpp = models.DecimalField(null=True, blank=True, max_digits=9, decimal_places=0, verbose_name="КПП")
+    ogrn = models.DecimalField(null=True, blank=True, max_digits=13, decimal_places=0, verbose_name="ОГРН")
+    account = models.DecimalField(null=True, blank=True, max_digits=20, decimal_places=0, verbose_name="Расчетный счет")
+    corr_account = models.DecimalField(null=True, blank=True, max_digits=20, decimal_places=0, verbose_name="Корр. счет")
+    phone =  models.CharField(blank=True, max_length=200, verbose_name="Телефон")
+    email = models.EmailField(blank=True, verbose_name="e-mail")
+    
     
     def __str__(self):
         return self.name
    
+   
+class Person(models.Model):
+    class Meta:
+        abstract = True
+        
+    last_name = models.CharField(max_length=200, verbose_name="Фамилия")
+    first_name = models.CharField(max_length=200, verbose_name="Имя")
+    mid_name = models.CharField(max_length=200, verbose_name="Отчество")
+    full_name_r = models.CharField(blank=True, max_length=200, verbose_name="ФИО в родительном падеже")
+
+    def get_fio(self):
+        return self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
+    
+    def get_full_name(self):
+        return self.last_name + ' ' + self.first_name + ' ' + self.mid_name
+    
+    def __str__(self):
+        return self.get_fio()
+ 
+
+class TourOperator(Entity):
+    class Meta:
+        verbose_name = "Туроператор"
+        verbose_name_plural = "Туроператоры"
+        
+    registry_num = models.CharField(max_length=50, verbose_name="Реестровый номер")
+    www_address = models.CharField(max_length=50, verbose_name='Адрес сайта в сети "Интернет"')
+    tourpom_member = models.BooleanField(verbose_name='Является членом ассоциации  "ТУРПОМОЩЬ"') 
+    #assurer_name
+
     
 class TourAgency(Entity):
     class Meta:
         verbose_name = "Турагентство"
         verbose_name_plural = "Турагентства"
     
+    director = models.ForeignKey("Manager", null=True, verbose_name='Директор')
+
 
 class Country(models.Model):
     class Meta:
@@ -46,18 +84,7 @@ class Resort(models.Model):
 
     def __str__(self):
         return self.resort_name
-
-
-class TourOperator(Entity):
-    class Meta:
-        verbose_name = "Туроператор"
-        verbose_name_plural = "Туроператоры"
-        
-    registry_num = models.CharField(max_length=50, verbose_name="Реестровый номер")
-    www_address = models.CharField(max_length=50, verbose_name='Адрес сайта в сети "Интернет"')
-    tourpom_member = models.BooleanField(verbose_name='Является членом ассоциации  "ТУРПОМОЩЬ"') 
-    #assurer_name
-
+    
 
 class RoomType(models.Model):
     class Meta:
@@ -103,9 +130,11 @@ class Office(models.Model):
         verbose_name = "Офис"
         verbose_name_plural = "Офисы"
         
+    tour_agency = models.ForeignKey(TourAgency, null=True,blank=True)
     office_name = models.CharField(max_length=200, verbose_name="Наименование")
     office_adddress = models.CharField(max_length=200, verbose_name="Адрес")
     office_city = models.CharField(max_length=50, verbose_name="Город")
+    
     #signatory = models.ForeignKey(Manager, models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
     #office_chief_r = models.CharField(max_length=200, verbose_name="В лице кого")
 
@@ -124,23 +153,6 @@ class Status(models.Model):
         return self.status_name
 
 
-
-class Person(models.Model):
-    class Meta:
-        abstract = True
-        
-    last_name = models.CharField(max_length=200, verbose_name="Фамилия")
-    first_name = models.CharField(max_length=200, verbose_name="Имя")
-    mid_name = models.CharField(max_length=200, verbose_name="Отчество")
-    full_name_r = models.CharField(blank=True, max_length=200, verbose_name="ФИО в родительном падеже")
-
-    def get_fio(self):
-        return self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
-    
-    def __str__(self):
-        return self.get_fio()
- 
-  
 class Manager(Person):
     class Meta:
         verbose_name = "Менеджер"
@@ -155,12 +167,16 @@ class Tourist(Person):
         verbose_name_plural = "Туристы"
 
     birthdate = models.DateField(verbose_name="Дата рождения")
-    passport = models.CharField(max_length=200, verbose_name="Паспорт РФ")
+    passport_num = models.CharField(max_length=200, verbose_name="Номер паспорта РФ")
+    passport_date = models.DateField(verbose_name="Дата выдачи паспорта РФ")
+    passport_issued_by = models.CharField(max_length=50, verbose_name="Кем выдан паспорт РФ")
     international_passport = models.CharField(max_length=200, verbose_name="Загранпаспорт")
     international_name = models.CharField(max_length=200, verbose_name="Имя как в загранпаспорте")
     international_passport_date_of_expiry=models.DateField(verbose_name="Срок действия загранпаспорта")
+    phone = models.CharField(blank=True, max_length=50, verbose_name="Телефон")
     email = models.EmailField(blank=True, null=True, verbose_name="e-mail")
-    
+    address = models.CharField(blank=True, max_length=200, verbose_name="Адрес")
+
 
 class Contract(models.Model):
     class Meta:

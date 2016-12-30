@@ -23,4 +23,8 @@ urlpatterns = [
     url(r'^contract/(?P<pk>[0-9]+)/edit/$', views.ContractEditView.as_view(), name='contract_edit'),
     
     url(r'^contract/(?P<contract_id>[0-9]+)/save$', views.contract_save, name='contract_save'),
+    
+    url(r'^contract/(?P<pk>[0-9]+)/print/$', views.ContractPdfPrint.as_view(), name='contract_pdf_print'),
+    #url(r'^contract/(?P<pk>[0-9]+)/print_pdf/$', views.ContractPdfPrint, name='contract_pdf_print'),
+    
 ]

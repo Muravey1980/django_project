@@ -10,6 +10,9 @@
         {% for tourist in contract.tourist_list.all %}
             <td>{{ tourist }}</td>
         {% endfor %}
+        {% for form in tourist_formset %}
+            {{ form }}
+        {% endfor %}
         </table>
         <input type="submit" value="Сохранить" />
     </form>

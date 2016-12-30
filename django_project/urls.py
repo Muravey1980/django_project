@@ -21,4 +21,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^polls/', include('polls.urls')),
     url(r'^yurjin_tour/', include('yurjin_tour.urls')),
+    
+    url(r'^select2/', include('django_select2.urls')),
 ]

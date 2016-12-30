@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     
     'polls.apps.PollsConfig',
     'yurjin_tour.apps.YurjinTourConfig',
+    'django_select2',
+    
 ]
 
 MIDDLEWARE_CLASSES = [
