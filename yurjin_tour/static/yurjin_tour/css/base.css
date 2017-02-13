@@ -1,13 +1,18 @@
 @charset "utf-8";
 
 #leftmenu {
-  background: #e0ebff;
+  /**background: #e0ebff;**/
+  background: #417690;
   float: left;
   width: 100px;
   padding: 10px;
   min-height: 440px;
   /**margin-bottom: 0px;**/
   /**border-right: 1px #cccccc solid;**/
+}
+
+#leftmenu a{
+	color: f79420;	
 }
 
 #leftmenu ul {
@@ -55,7 +60,8 @@ body {
 
 #header {
   /**background: #417690;**/
-  background: #e0ebff;
+  /**background: #e0ebff;**/
+  height: 70px;
   text-align: center;
   /**border-bottom: 1px #cccccc solid;**/
 }

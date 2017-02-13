@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,8 +42,7 @@ INSTALLED_APPS = [
     
     'polls.apps.PollsConfig',
     'yurjin_tour.apps.YurjinTourConfig',
-    'django_select2',
-    
+
 ]
 
 MIDDLEWARE_CLASSES = [

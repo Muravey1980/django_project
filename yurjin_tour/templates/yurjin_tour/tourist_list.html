@@ -1,0 +1,19 @@
+{% extends 'yurjin_tour/base.html' %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<a href="{% url 'yurjin_tour:tourist_add' %}" class="addlink">Добавить туриста</a>
+    {% if tourist_list %}
+        <table ><th>Список туристов:</th>
+            {% for tourist in tourist_list %}
+                <tr>
+                    <td>{{ tourist }}</td>
+                    <td><a href="{% url 'yurjin_tour:tourist_edit' tourist.id %}">Изменить</a></td>
+                    <td><a href="{% url 'yurjin_tour:tourist_delete' tourist.id %}">Удалить</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No tourists.</p>
+    {% endif %}
+{% endblock %}

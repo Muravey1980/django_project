@@ -1,59 +1,95 @@
-#from django.shortcuts import render
-#from django.http import HttpResponse
+from django.shortcuts import render
+from django.http import HttpResponse
+
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 
-from yurjin_tour import forms
 
 from django.core.urlresolvers import reverse_lazy
 
 from .models import Contract, Tourist, Manager
+from . import forms
 
-#from .forms import ContractForm
 
 from django.template.context_processors import request
-from django.http import HttpResponse
+
+
+from dal import autocomplete
 
 
 class ContractPdfPrint(generic.TemplateView): 
     template_name = "yurjin_tour/contract_print.html"
-    pass    
+
+
+class TouristList(autocomplete.Select2QuerySetView):
+    
+    def get_queryset(self):
+        qs = Tourist.objects.all()
+
+        if self.q:
+            qs = qs.filter(last_name__istartswith=self.q)
+            
+        return qs
 
 
 class ContractEditView(generic.UpdateView):
     template_name = 'yurjin_tour/contract_edit.html'
     model = Contract
     form_class=forms.ContractForm
-    tourist_formset = forms.ContractTouristFormSet()
-    #form_class=forms.ContractTouristFormSet()
-    
-    #fields =
-    #fields = Contract._meta.get_all_field_names()
-    #fields = list(Contract._meta.get_fields())
-    #fields = [field.name for field in Contract._meta.local_fields]
-    #get_all_field_names(Contract)
-    #exclude = ('contract_id',)
-    #widgets = {'contract_date': SelectDateWidget(years=range(1940, 2014))}
-
-
     success_url = reverse_lazy('yurjin_tour:index')
-    success_message = "Новость успешно изменена"
+    success_message = "Договор успешно изменен"        
+
+
+class ContractCreateView(generic.CreateView):
+    def get_num():
+        #last_contract = Contract.objects.latest(field_name='contract_date')
+        last_contract = Contract.objects.order_by('-contract_date','-contract_num')[0:1].get()
+        if (last_contract.contract_date.year==timezone.datetime.today().year and last_contract.contract_date.month==timezone.datetime.today().month):
+            #new_num=last_contract.contract_date.month
+            new_num=last_contract.contract_num+1
+        else:
+            new_num=1
+            #new_num='false'
+        return new_num #last_contract.contract_date
+    #last_contract.contract_num+1 if last_contract.contract_date.year==timezone.datetime.today().year else 1
+        #return last_contract.contract_date.year 
+        #return timezone.datetime.today().year==last_contract.contract_date.year
     
-    #def get_form(self, form_class):
-    #    from django import forms
-    #    form = super(ContractEditView, self).get_form(form_class)
-    #    form.fields['contract_date'].widget = forms.SelectDateWidget()
-    #    return form
+    
+    template_name = 'yurjin_tour/contract_edit.html'
+    model = Contract    
+    initial = {'contract_date': timezone.datetime.today(),'contract_num': get_num()}
+    
+    #def get_num():
+    #    last_contract = Contract.objects.latest(field_name='contract_date')
+    #    return last_contract.contract_num+1 if last_contract.contract_date.year==timezone.datetime.today().year else 1 
+    
+    
+               #'contract_date':timezone.datetime.today()}
+               #Contract.objects.latest(field_name='contract_date').contract_num+1, 'contract_date':timezone.datetime.now()}
+    #from django.db.models import Max
+    #Contract.objects.filter(contract_num__year=timezone.datetime.year(timezone.datetime.now())).order_by('-number')[0]+1
+    #initial = {'contract_num':Contract.objects.filter().max() (field_name='contract_date').contract_num+1}
+    form_class=forms.ContractForm
+    success_url = reverse_lazy('yurjin_tour:index')
+    success_message = "Договор успешно создан"        
 
-    #def get(self, request, *args, **kwargs):
-    #    self.object = self.get_object()
-    #    tourist_formset = self.get_form(ContractTouristFormSet)
-        
 
+class ContractDeleteView(generic.DeleteView):
+    model = Contract
+    template_name = "yurjin_tour/contract_delete.html"
+    #pk_url_kwarg = "contract_id"
 
+    #template_name = 'yurjin_tour/contract_edit.html'
+    
+    #form_class=forms.ContractForm
+    success_url = reverse_lazy('yurjin_tour:index')
+    #success_message = "Договор успешно удален"    
+    
 
 class ContractArchiveIndexView(generic.ArchiveIndexView):
     model = Contract
@@ -85,6 +121,43 @@ class ContractListView(generic.ListView):
     #    self.manager = get_object_or_404(Manager, id=1)
     #    return Contract.objects.filter(manager = self.manager).order_by('-input_date')[:5]
 
+
+class TouristListView(generic.ListView):
+    #template_name = 'yurjin_tour/tourist_list.html'
+    model = Tourist
+    paginate_by = 20
+    queryset = Tourist.objects.order_by('last_name', 'first_name', 'mid_name')
+
+
+class TouristEditView(generic.UpdateView):
+    template_name = 'yurjin_tour/tourist_edit.html'
+    model = Tourist
+    #form_class=forms.TouristForm
+    success_url = reverse_lazy('yurjin_tour:tourist_list')
+    success_message = "Турист успешно изменен"        
+
+
+class TouristCreateView(generic.CreateView):    
+    template_name = 'yurjin_tour/tourist_edit.html'
+    model = Tourist
+    #form_class=forms.ContractForm
+    success_url = reverse_lazy('yurjin_tour:tourist_list')
+    success_message = "Турист успешно создан"        
+
+
+class TouristDeleteView(generic.DeleteView):
+    model = Tourist
+    template_name = "yurjin_tour/tourist_delete.html"
+    success_url = reverse_lazy('yurjin_tour:tourist_list')
+    success_message = "Турист успешно удален"    
+    
+    
+
+
+
+
+
+    
 
 class IndexView(generic.ListView):
     template_name = 'yurjin_tour/index.html'

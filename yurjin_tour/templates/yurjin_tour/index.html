@@ -2,5 +2,6 @@
 {% block title %}Главная{% endblock %}
 
 {% block content %}
+    <a href="{% url 'yurjin_tour:contract_add' %}" class="addlink">Добавить Договор</a>
     {% include 'yurjin_tour/contract_list.html' %}
 {% endblock %}

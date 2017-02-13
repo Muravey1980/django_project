@@ -1,0 +1,79 @@
+    <script type="text/javascript" src="{% static "yurjin_tour/js/jquery.js" %}"></script>
+    
+    <link href="{% static 'admin/css/forms.css' %}" type="text/css" media="all" rel="stylesheet" />
+    <link href="{% static 'admin/css/base.css' %}" type="text/css" media="all" rel="stylesheet" />
+    <link href="{% static 'admin/css/widgets.css' %}" type="text/css" media="all" rel="stylesheet" />
+    
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+
+
+
+
+'''
+            'contract_date': widgets.AdminDateWidget(),
+                        
+            'manager': autocomplete.ModelSelect2(),
+            'office': autocomplete.ModelSelect2(),
+            'client': autocomplete.ModelSelect2(),
+            'status': autocomplete.ModelSelect2(),
+            
+            'tour_begin_date': widgets.AdminDateWidget(),
+            'tour_finish_date': widgets.AdminDateWidget(),
+            
+            
+            'signatory': autocomplete.ModelSelect2(),
+            #'tourist_list': autocomplete.ModelSelect2Multiple(url='tourist_list'),
+            'tourist_list': TouristList(url='tourist_list',),
+            'tour_operator': autocomplete.ModelSelect2(),
+            'resort': autocomplete.ModelSelect2(),
+            'hotel_begin_date': widgets.AdminDateWidget(),
+            'hotel_finish_date': widgets.AdminDateWidget(),
+            'room_type': autocomplete.ModelSelect2(),
+            'board': autocomplete.ModelSelect2(),
+            
+            'doc_get_date': widgets.AdminDateWidget(),
+            '''    
+
+
+class CalendarWidget(forms.TextInput):
+    '''
+    Данный виджет является, практически, копией
+    django.contrib.admin.widgets.AdminDateWidget
+    Но наследование от AdminDateWidget не удалось из-за неверного
+    порядка JS-файлов в результирующем html, при наследовании.
+
+    Для работы необходимо в urls.py добавить:
+    (r'^admin/jsi18n/', 'django.views.i18n.javascript_catalog'),
+    '''
+    class Media:
+        js = ('/admin/jsi18n/',
+              #settings.ADMIN_MEDIA_PREFIX + 
+              'js/core.js',
+              #settings.ADMIN_MEDIA_PREFIX + 
+              "js/calendar.js",
+              #settings.ADMIN_MEDIA_PREFIX + 
+              "js/admin/DateTimeShortcuts.js")
+        css = {
+            'all': (
+                #settings.ADMIN_MEDIA_PREFIX + 
+                'css/forms.css',
+                #settings.ADMIN_MEDIA_PREFIX + 
+                'css/base.css',
+                #settings.ADMIN_MEDIA_PREFIX + 
+                'css/widgets.css',)
+        }
+
+    def __init__(self, attrs={}):
+        super(CalendarWidget, self).__init__(attrs={'class': 'vDateField', 'size': '10'})
+
+
+
+#class CalendarWidgetTest(widgets.AdminDateWidget):
+#    class Media:
+#        css = {'all': ('admin/css/base.css','admin/css/widgets.css',)}
+#        js = {('/admin/jsi18n/'),('admin/js/core.js'),('admin/js/calendar.js'),('admin/js/jquery.init.js'),}
+#        pass
+#    pass
