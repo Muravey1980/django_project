@@ -1,5 +1,5 @@
     {% if contract_list %}
-        <table ><th>Договоры за {{month|date:'F o'}}</th>
+        <table ><th>Договоры за {{month|date:'F Y'}}</th>
             {% for contract in contract_list %}
                 <tr>
                     <td>{{ contract }}</td><td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
