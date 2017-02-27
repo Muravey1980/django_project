@@ -26,4 +26,5 @@ urlpatterns = [
     
     url(r'^tourist_list/$',TouristList.as_view(),name='tourist_list'),
     
+    
 ]

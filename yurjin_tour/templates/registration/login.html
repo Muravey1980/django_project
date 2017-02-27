@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<html>
+    <head>
+    {% include 'yurjin_tour\base_head.html' %}
+    </head>
+<body>
+    <center>
+    <h2>Вход</h2>
+    
+    <form action="" method="post">
+        {% include "yurjin_tour/form.html" %}
+        <div class="submit-button"><input type="submit" value="Войти"></div>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+    </center>
+</body>

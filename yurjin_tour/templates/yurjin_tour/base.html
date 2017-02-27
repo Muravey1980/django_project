@@ -1,36 +1,23 @@
 {% load staticfiles %}
 
 <html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="Content-Language" content="ru"/>
-    
-
-    <script type="text/javascript" src="{% static "yurjin_tour/js/jquery.js" %}"></script>
-    
-
-    <link href="{% static 'admin/css/forms.css' %}" type="text/css" media="all" rel="stylesheet" />
-    <link href="{% static 'admin/css/base.css' %}" type="text/css" media="all" rel="stylesheet" />
-    <link href="{% static 'admin/css/widgets.css' %}" type="text/css" media="all" rel="stylesheet" />
-    
-    <script type="text/javascript" src="/admin/jsi18n/"></script>
-    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
-    <script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
-    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
-    
+    <head>
+        {% include 'yurjin_tour\base_head.html' %}
         
-    <link rel="stylesheet" href="{% static "yurjin_tour/css/print.css" %}" media="print">
-	<link rel="stylesheet" href="{% static "yurjin_tour/css/base.css" %}" media="screen">
-
-	{% block additional_css %}{% endblock %}
-    
-    
-    <title>Yurjin-тур :: {% block title %}{% endblock %}</title>
-</head>
-<body>
-    <div id="header">
-        <center><img src="{% static "yurjin_tour/images/sitelogo.png" %}" alt="SiteLogo"  height=100/></center>
-    </div>
+        {% block additional_css %}{% endblock %}
+        
+        <title>Yurjin-тур :: {% block title %}{% endblock %}</title>
+    </head>
+    <body>
+        <div id="header">
+	            <div style="float: left; width: 30%; height: 100px;"></div>
+	            <div style="float: left; width: 40%; height: 100px;"><img src="{% static "yurjin_tour/images/sitelogo.png" %}" alt="SiteLogo"  height=100/></div>
+	            <div style="float: left; width: 30%; height: 100px;"  align="right">
+	                {% if user.is_authenticated %}
+	                    Добро пожаловать, <strong>{{user.first_name}} {{user.last_name}}</strong>. <a href="{% url 'yurjin_tour:logout' %}">Выход</a>
+	                {%  endif %}
+	            </div>
+        </div>
     <div id="leftmenu">
         <ul>
             <li><a href="{% url 'yurjin_tour:index' %}">Главная</a>
@@ -42,6 +29,7 @@
         </ul>
     </div>
     <div id="main">
+
         {% if is_paginated and paginator.num_pages > 1 %}
             <div id="pagination">
                 <div id="previous-page">
