@@ -106,7 +106,7 @@ class ContractMonthArchiveView(generic.MonthArchiveView):
     date_field = 'contract_date'
     month_format = '%m' 
     context_object_name = 'contract_list'
-    template_name = 'yurjin_tour/contract_list.html'
+    #template_name = 'yurjin_tour/contract_list.html'
 
 
 class ContractListView(generic.ListView):

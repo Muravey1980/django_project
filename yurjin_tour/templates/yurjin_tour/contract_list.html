@@ -1,10 +1,13 @@
+    
+    {% if perms.yurjin_tour.add_contract %}<a href="{% url 'yurjin_tour:contract_add' %}" class="addlink">Добавить Договор</a>{% endif %}
     {% if contract_list %}
+        
         <table ><th>Договоры за {{month|date:'F Y'}}</th>
             {% for contract in contract_list %}
                 <tr>
                     <td>{{ contract }}</td><td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
-                    <td><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a></td>
-                    <td><a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a></td>
+                    {% if perms.yurjin_tour.edit_contract %}<td><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a></td>{% endif %}
+                    {% if perms.yurjin_tour.delete_contract %}<td><a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a></td>{% endif %}
                 
                 </tr>
             {% endfor %}
