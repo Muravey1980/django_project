@@ -6,12 +6,12 @@ Created on 2016-10-26
 
 from django.conf.urls import url
 from . import views
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 app_name = 'yurjin_tour'
 urlpatterns = [
-    url(r'^login/', "django.contrib.auth.views.login", name = 'login'),
-    url(r'^logout/', "django.contrib.auth.views.logout", {"next_page": 'yurjin_tour:login'}, name = 'logout'),
+    url(r'^login/', 'django.contrib.auth.views.login', name = 'login'),
+    url(r'^logout/', 'django.contrib.auth.views.logout', {"next_page": 'yurjin_tour:login'}, name = 'logout'),
     
     
     
@@ -32,14 +32,14 @@ urlpatterns = [
     url(r'^contract/(?P<pk>[0-9]+)/print/$', login_required(views.ContractPdfPrint.as_view()), name='contract_pdf_print'),
 
 
-    url(r'^contract/(?P<pk>[0-9]+)/edit/$', login_required(views.ContractEditView.as_view()), name='contract_edit'),
-    url(r'^contract/add/$', login_required(views.ContractCreateView.as_view()),name = 'contract_add'),
-    url(r'^contract/(?P<pk>[0-9]+)/delete/$', login_required(views.ContractDeleteView.as_view()),name = 'contract_delete'),
+    url(r'^contract/(?P<pk>[0-9]+)/edit/$', permission_required('yurjin_tour.edit_contract')(views.ContractEditView.as_view()), name='contract_edit'),
+    url(r'^contract/add/$', permission_required('yurjin_tour.add_contract')(views.ContractCreateView.as_view()),name = 'contract_add'),
+    url(r'^contract/(?P<pk>[0-9]+)/delete/$', permission_required('yurjin_tour.delete_contract')(views.ContractDeleteView.as_view()),name = 'contract_delete'),
     
     
-    url(r'^tourist/(?P<pk>[0-9]+)/edit/$', login_required(views.TouristEditView.as_view()), name='tourist_edit'),
-    url(r'^tourist/add/$', login_required(views.TouristCreateView.as_view()),name = 'tourist_add'),
-    url(r'^tourist/(?P<pk>[0-9]+)/delete/$', login_required(views.TouristDeleteView.as_view()),name = 'tourist_delete'),
+    url(r'^tourist/(?P<pk>[0-9]+)/edit/$', permission_required('yurjin_tour.edit_contract')(views.TouristEditView.as_view()), name='tourist_edit'),
+    url(r'^tourist/add/$', permission_required('yurjin_tour.add_contract')(views.TouristCreateView.as_view()),name = 'tourist_add'),
+    url(r'^tourist/(?P<pk>[0-9]+)/delete/$', permission_required('yurjin_tour.delete_contract')(views.TouristDeleteView.as_view()),name = 'tourist_delete'),
     
 
     #url(r'^heavy_select2_multiple_widget/$',views.TemplateFormView.as_view(form_class=HeavySelect2MultipleWidgetForm, success_url='/'),name='heavy_select2_multiple_widget'),
