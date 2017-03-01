@@ -14,7 +14,7 @@
 	            <div style="float: left; width: 40%; height: 100px;"><img src="{% static "yurjin_tour/images/sitelogo.png" %}" alt="SiteLogo"  height=100/></div>
 	            <div style="float: left; width: 30%; height: 100px;"  align="right">
 	                {% if user.is_authenticated %}
-	                    Добро пожаловать, <strong>{{user.first_name}} {{user.last_name}}</strong>. <a href="{% url 'yurjin_tour:logout' %}">Выход</a>
+	                    Добро пожаловать, <strong>{{user.manager}}</strong>. <a href="{% url 'yurjin_tour:logout' %}">Выход</a>
 	                {%  endif %}
 	            </div>
         </div>

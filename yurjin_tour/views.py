@@ -19,6 +19,7 @@ from django.template.context_processors import request
 
 
 from dal import autocomplete
+from config import auth_user
 
 
 class ContractPdfPrint(generic.TemplateView): 
@@ -58,11 +59,18 @@ class ContractCreateView(generic.CreateView):
     #last_contract.contract_num+1 if last_contract.contract_date.year==timezone.datetime.today().year else 1
         #return last_contract.contract_date.year 
         #return timezone.datetime.today().year==last_contract.contract_date.year
-    
-    
+
+    def form_valid(self, form):
+        form.instance.manager = self.request.user.manager
+        #form.instance.
+        return super(ContractCreateView, self).form_valid(form)    
+  
     template_name = 'yurjin_tour/contract_edit.html'
     model = Contract    
     initial = {'contract_date': timezone.datetime.today(),'contract_num': get_num()}
+    
+
+    
     
     #def get_num():
     #    last_contract = Contract.objects.latest(field_name='contract_date')

@@ -8,8 +8,8 @@
             {% for tourist in tourist_list %}
                 <tr>
                     <td>{{ tourist }}</td>
-                    <td><a href="{% url 'yurjin_tour:tourist_edit' tourist.id %}">Изменить</a></td>
-                    <td><a href="{% url 'yurjin_tour:tourist_delete' tourist.id %}">Удалить</a></td>
+                    {% if perms.yurjin_tour.edit_tourist %}<td><a href="{% url 'yurjin_tour:tourist_edit' tourist.id %}">Изменить</a></td>{% endif %}
+                    {% if perms.yurjin_tour.delete_tourist %}<td><a href="{% url 'yurjin_tour:tourist_delete' tourist.id %}">Удалить</a></td>{% endif %}
                 </tr>
             {% endfor %}
         </table>

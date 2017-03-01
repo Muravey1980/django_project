@@ -25,7 +25,18 @@ class ContractForm(forms.ModelForm):
         
         model = Contract
         #fields = ['contract_num', 'contract_date', 'tourist_list']
-        fields = ('__all__')
+        #fields = ('__all__')
+        fields = [
+            #'manager',
+            'contract_num', 'contract_date', 'client',
+            'tour_begin_date', 'tour_finish_date',
+            'contract_sum', 'prepayment_sum',
+            'tourist_list', 'tour_operator', 'resort',
+            'hotel_name','room_type','hotel_begin_date', 'hotel_finish_date',
+            'board',
+            'transfer','excursion','russian_guide','visa_support',
+            'medical_insurance','non_departure_insurance']
+        
         widgets = {
             #'contract_date': forms.SelectDateWidget(years=range(timezone.now().year-3,timezone.now().year+3)),
             #'contract_num': autocomplete,

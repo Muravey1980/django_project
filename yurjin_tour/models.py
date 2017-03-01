@@ -1,7 +1,14 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 import datetime
 from number_to_text import num2text
 from math import modf
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 # Create your models here.
 class Entity(models.Model):
@@ -35,7 +42,12 @@ class Person(models.Model):
     full_name_r = models.CharField(blank=True, max_length=200, verbose_name="ФИО в родительном падеже")
 
     def get_fio(self):
-        return self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
+        if ((self.last_name + self.first_name + self.mid_name).strip() == ''):
+            fio = self.user.username
+        else:
+            fio = self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
+        
+        return fio 
     
     def get_full_name(self):
         return self.last_name + ' ' + self.first_name + ' ' + self.mid_name
@@ -158,7 +170,17 @@ class Manager(Person):
         verbose_name = "Менеджер"
         verbose_name_plural = "Менеджеры"
         
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
     manager_office = models.ForeignKey(Office, blank=True, null=True, on_delete=models.SET_NULL, verbose_name="Офис")
+    
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Manager.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.manager.save()
 
 
 class Tourist(Person):
@@ -176,6 +198,8 @@ class Tourist(Person):
     phone = models.CharField(blank=True, max_length=50, verbose_name="Телефон")
     email = models.EmailField(blank=True, null=True, verbose_name="e-mail")
     address = models.CharField(blank=True, max_length=200, verbose_name="Адрес")
+    
+
 
 
 class Contract(models.Model):
