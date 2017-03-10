@@ -28,7 +28,8 @@ class ContractForm(forms.ModelForm):
         #fields = ('__all__')
         fields = [
             #'manager',
-            'contract_num', 'contract_date', 'client',
+            #'contract_num', 
+            'contract_date', 'client',
             'tour_begin_date', 'tour_finish_date',
             'contract_sum', 'prepayment_sum',
             'tourist_list', 'tour_operator', 'resort',
@@ -65,10 +66,16 @@ class ContractForm(forms.ModelForm):
             'board': autocomplete.ModelSelect2(),
             
             'doc_get_date': widgets.AdminDateWidget(),
-                        
-            
-            
-            
         }
 
 
+class TouristForm(forms.ModelForm):
+    class Meta:
+        model = Tourist
+        fields = ('__all__')
+        
+        widgets = {    
+            'birthdate': widgets.AdminDateWidget(),
+            'passport_date': widgets.AdminDateWidget(),
+            'international_passport_date_of_expiry': widgets.AdminDateWidget(),
+            }

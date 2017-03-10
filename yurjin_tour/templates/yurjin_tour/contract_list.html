@@ -6,10 +6,11 @@
         {% if month %}
             <th>Договоры  за {{month|date:'F Y'}}</th>
         {% endif %}
-            
             {% for contract in contract_list %}
                 <tr>
-                    <td>{{ contract }}</td><td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
+                    <td>{{ contract }}</td>
+                    <td>{{ contract.manager }}</td>
+                    <td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
                     {% if perms.yurjin_tour.edit_contract %}<td><a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a></td>{% endif %}
                     {% if perms.yurjin_tour.delete_contract %}<td><a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a></td>{% endif %}
                 

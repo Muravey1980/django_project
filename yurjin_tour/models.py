@@ -147,7 +147,7 @@ class Office(models.Model):
     office_adddress = models.CharField(max_length=200, verbose_name="Адрес")
     office_city = models.CharField(max_length=50, verbose_name="Город")
     
-    #signatory = models.ForeignKey(Manager, models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
+    #signatory = models.ForeignKey('Manager', models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
     #office_chief_r = models.CharField(max_length=200, verbose_name="В лице кого")
 
     def __str__(self):
@@ -198,8 +198,6 @@ class Tourist(Person):
     phone = models.CharField(blank=True, max_length=50, verbose_name="Телефон")
     email = models.EmailField(blank=True, null=True, verbose_name="e-mail")
     address = models.CharField(blank=True, max_length=200, verbose_name="Адрес")
-    
-
 
 
 class Contract(models.Model):

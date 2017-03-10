@@ -46,7 +46,7 @@ class ContractEditView(generic.UpdateView):
 
 
 class ContractCreateView(generic.CreateView):
-    def get_num():
+    def get_num(self):
         #last_contract = Contract.objects.latest(field_name='contract_date')
         last_contract = Contract.objects.order_by('-contract_date','-contract_num')[0:1].get()
         if (last_contract.contract_date.year==timezone.datetime.today().year and last_contract.contract_date.month==timezone.datetime.today().month):
@@ -62,12 +62,19 @@ class ContractCreateView(generic.CreateView):
 
     def form_valid(self, form):
         form.instance.manager = self.request.user.manager
+        form.instance.office = self.request.user.manager.manager_office
+        form.instance.signatory = self.request.user.manager.manager_office.tour_agency.director
+        form.instance.contract_num = self.get_num()
+        
         #form.instance.
         return super(ContractCreateView, self).form_valid(form)    
   
     template_name = 'yurjin_tour/contract_edit.html'
     model = Contract    
-    initial = {'contract_date': timezone.datetime.today(),'contract_num': get_num()}
+    initial = {
+                'contract_date': timezone.datetime.today(),
+                #'contract_num': get_num()
+                }
     
 
     
@@ -140,17 +147,17 @@ class TouristListView(generic.ListView):
 class TouristEditView(generic.UpdateView):
     template_name = 'yurjin_tour/tourist_edit.html'
     model = Tourist
-    #form_class=forms.TouristForm
+    form_class=forms.TouristForm
     success_url = reverse_lazy('yurjin_tour:tourist_list')
-    success_message = "Турист успешно изменен"        
+    success_message = "Данные туриста успешно изменен"        
 
 
 class TouristCreateView(generic.CreateView):    
     template_name = 'yurjin_tour/tourist_edit.html'
     model = Tourist
-    #form_class=forms.ContractForm
+    form_class=forms.TouristForm
     success_url = reverse_lazy('yurjin_tour:tourist_list')
-    success_message = "Турист успешно создан"        
+    success_message = "Даннные туриста успешно создан"        
 
 
 class TouristDeleteView(generic.DeleteView):
