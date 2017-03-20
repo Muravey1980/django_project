@@ -10,22 +10,29 @@
     </head>
     <body>
         <div id="header">
-	            <div style="float: left; width: 30%; height: 100px;"></div>
+	            <div style="float: left; width: 30%; height: 100px; align:left ;">
+	                {% if messages %}
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    {% endif %}
+	            </div>
 	            <div style="float: left; width: 40%; height: 100px;"><img src="{% static "yurjin_tour/images/sitelogo.png" %}" alt="SiteLogo"  height=100/></div>
 	            <div style="float: left; width: 30%; height: 100px;"  align="right">
 	                {% if user.is_authenticated %}
-	                    Добро пожаловать, <strong>{{user.manager}}</strong>. <a href="{% url 'yurjin_tour:logout' %}">Выход</a>
-	                {%  endif %}
+	                    Добро пожаловать, <strong><a href="{% url 'yurjin_tour:profile_edit' %}" title="Изменить профиль">{{user.manager}}</a></strong>. <a href="{% url 'yurjin_tour:logout' %}">Выход</a>
+	                {% endif %}
 	            </div>
         </div>
     <div id="leftmenu">
         <ul>
-            <li><a href="{% url 'yurjin_tour:index' %}">Главная</a>
-            <ul>
-                <li><a href="{% url 'yurjin_tour:contract_archive' %}">Договоры</a></li>
+            <!-- <li><a href="{% url 'yurjin_tour:index' %}">Главная</a>  -->
+            <!-- <ul> -->
+                <!-- <li><a href="{% url 'yurjin_tour:contract_archive' %}">Договоры</a></li> -->
+                <li><a href="{% url 'yurjin_tour:index' %}">Договоры</a>
                 <li><a href="{% url 'yurjin_tour:tourist_list' %}">Туристы</a></li>
-                
-            <ul>
+                <li><a href="{% url 'yurjin_tour:contract_archive' %}">Отчеты</a></li>
+            <!-- <ul> -->
         </ul>
     </div>
     <div id="main">

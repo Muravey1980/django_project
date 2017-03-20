@@ -5,6 +5,7 @@ Created on 2016-10-31
 '''
 #from __future__ import absolute_import, unicode_literals
 #from django.utils.encoding import force_text
+#from __future__ import __all__
 
 from django import forms
 from django.utils import timezone
@@ -12,13 +13,18 @@ from django.forms.models import inlineformset_factory
 from django.contrib.admin import widgets
 
 from dal import autocomplete
-from .models import Contract, Tourist
+from .models import Contract, Tourist, Manager
 
 import dal
 
 from django.conf import settings
 from django.templatetags.i18n import language
 
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Manager
+        fields = ['last_name', 'first_name', 'mid_name', 'full_name_r']
 
 class ContractForm(forms.ModelForm):
     class Meta:

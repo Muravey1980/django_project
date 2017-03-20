@@ -1,2 +1,2 @@
 :: python manage.py makemigrations polls
-python manage.py makemigrations yurjin_tour
+c:\Develope\Python36\python manage.py makemigrations yurjin_tour
