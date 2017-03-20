@@ -1,7 +1,7 @@
     {% include "yurjin_tour/filter_form.html" %}
     {% if perms.yurjin_tour.add_contract %}<a href="{% url 'yurjin_tour:contract_add' %}" class="addlink">Добавить Договор</a>{% endif %}
     {% if contract_list %}
-        <table>
+        <table style="contract_grid">
         {% if month %}
             <th>Договоры  за {{month|date:'F Y'}}</th>
         {% endif %}
@@ -17,6 +17,8 @@
             {% for contract in contract_list %}
                 <tr>
                     <td>{{ contract }}</td>
+                    <td {% if contract.get_payment_sum > 0 %} style="unpaid"{% endif %}>{{ contract.contract_sum }}</td>
+                    <td>{{ contract.prepayment_sum }}</td>
                     <td>{{ contract.manager }}</td>
                     <td>{{ contract.office }}</td>
                     <td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>

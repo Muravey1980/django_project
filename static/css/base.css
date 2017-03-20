@@ -37,12 +37,17 @@
   margin: 0px 10px 10px 0px;
 }
 
-#contract_grid{
+#contract_grid {
 	
 }
 
+#contract_grid td{
+	background-color: maroon;
+}
+
+
 #contract_grid odd{
-	
+
 }
 
 #contract{

@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//main/templates/main_page.html=UTF-8
 encoding//number_to_text/__init__.py=utf-8
 encoding//yurjin_tour/migrations/0048_auto_20170301_1134.py=utf-8
 encoding//yurjin_tour/migrations/0049_auto_20170301_1136.py=utf-8
