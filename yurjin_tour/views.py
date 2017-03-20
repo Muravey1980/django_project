@@ -14,12 +14,14 @@ from django.core.urlresolvers import reverse_lazy
 from .models import Contract, Tourist, Manager
 from . import forms
 
+from common.views import FilteredAndSortedView
 
 from django.template.context_processors import request
 from django.contrib.messages.views import SuccessMessageMixin
 
 from dal import autocomplete
 from yurjin_tour.models import Office
+from lib2to3.fixes.fix_input import context
 
 
 class ProfileEditView(SuccessMessageMixin,generic.UpdateView):
@@ -63,8 +65,8 @@ class ContractCreateView(SuccessMessageMixin,generic.CreateView):
 
     def form_valid(self, form):
         form.instance.manager = self.request.user.manager
-        form.instance.office = self.request.user.manager.manager_office
-        form.instance.signatory = self.request.user.manager.manager_office.tour_agency.director
+        form.instance.office = self.request.user.manager.office
+        form.instance.signatory = self.request.user.manager.office.tour_agency.director
         form.instance.contract_num = self.get_num()
         
         return super(ContractCreateView, self).form_valid(form)    
@@ -126,7 +128,9 @@ class ContractMonthArchiveView(generic.MonthArchiveView,ContractList):
     #template_name = 'yurjin_tour/contract_list.html'
 
 
-class ContractListView(generic.ListView):
+
+class ContractListView(FilteredAndSortedView, generic.ListView):
+    #filter=None
     template_name = 'yurjin_tour/index.html'
     model = Contract
     paginate_by = 10
@@ -142,14 +146,17 @@ class ContractListView(generic.ListView):
     #    return Contract.objects.filter(manager = self.manager).order_by('-input_date')[:5]    
 
     def get_queryset(self):
-        
         q=Contract.objects.all()
         if (self.request.user.is_superuser):
             pass
-        elif (self.request.user.manager == self.request.user.manager.manager_office.tour_agency.director):
-            q=q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.manager_office.tour_agency))
+        elif (self.request.user.manager == self.request.user.manager.office.tour_agency.director):
+            q=q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
         else:
-            q=q.filter(office=self.request.user.manager.manager_office)
+            q=q.filter(office=self.request.user.manager.office)
+        
+        if (self.filter):
+            q=q.filter(tourist_list__in=Tourist.objects.filter(last_name__icontains=self.filter)).distinct()
+
         #q=q.filter(office=self.request.user.manager.manager_office)
         
         #contract_date__lte=timezone.now()
@@ -159,27 +166,42 @@ class ContractListView(generic.ListView):
         return q.order_by('-contract_date','-contract_num')
     
 
-class TouristListView(generic.ListView):
+class TouristListView(FilteredAndSortedView, generic.ListView):
     #template_name = 'yurjin_tour/tourist_list.html'
     model = Tourist
-    paginate_by = 20
-    queryset = Tourist.objects.order_by('last_name', 'first_name', 'mid_name')
+    paginate_by = 5
+    
+    def get_queryset(self):
+        q = Tourist.objects.all()
+        if (self.request.user.is_superuser):
+            pass
+        else:
+            q = q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
+        if (self.filter):
+            q = q.filter(last_name__icontains = self.filter)
+        
+        return q.order_by('last_name', 'first_name', 'mid_name')
 
 
-class TouristEditView(generic.UpdateView):
+class TouristEditView(SuccessMessageMixin,generic.UpdateView):
     template_name = 'yurjin_tour/tourist_edit.html'
     model = Tourist
     form_class=forms.TouristForm
     success_url = reverse_lazy('yurjin_tour:tourist_list')
-    success_message = "Данные туриста успешно изменен"        
+    success_message = "Данные туриста успешно изменены"        
 
 
-class TouristCreateView(generic.CreateView):    
+class TouristCreateView(SuccessMessageMixin,generic.CreateView):    
     template_name = 'yurjin_tour/tourist_edit.html'
     model = Tourist
     form_class=forms.TouristForm
     success_url = reverse_lazy('yurjin_tour:tourist_list')
-    success_message = "Даннные туриста успешно созданы"        
+    success_message = "Даннные туриста успешно добавлены"
+    
+    def form_valid(self, form):
+        form.instance.office = self.request.user.manager.office
+        
+        return super(TouristCreateView, self).form_valid(form)         
 
 
 class TouristDeleteView(generic.DeleteView):

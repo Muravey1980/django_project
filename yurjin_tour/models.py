@@ -30,31 +30,7 @@ class Entity(models.Model):
     
     def __str__(self):
         return self.name
-   
-   
-class Person(models.Model):
-    class Meta:
-        abstract = True
-        
-    last_name = models.CharField(max_length=200, verbose_name="Фамилия")
-    first_name = models.CharField(max_length=200, verbose_name="Имя")
-    mid_name = models.CharField(max_length=200, verbose_name="Отчество")
-    full_name_r = models.CharField(blank=True, max_length=200, verbose_name="ФИО в родительном падеже")
 
-    def get_fio(self):
-        if ((self.last_name + self.first_name + self.mid_name).strip() == ''):
-            fio = self.user.username
-        else:
-            fio = self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
-        
-        return fio 
-    
-    def get_full_name(self):
-        return self.last_name + ' ' + self.first_name + ' ' + self.mid_name
-    
-    def __str__(self):
-        return self.get_fio()
- 
 
 class TourOperator(Entity):
     class Meta:
@@ -164,6 +140,31 @@ class Status(models.Model):
     def __str__(self):
         return self.status_name
 
+  
+class Person(models.Model):
+    class Meta:
+        abstract = True
+        
+    last_name = models.CharField(max_length=200, verbose_name="Фамилия")
+    first_name = models.CharField(max_length=200, verbose_name="Имя")
+    mid_name = models.CharField(max_length=200, verbose_name="Отчество")
+    full_name_r = models.CharField(blank=True, max_length=200, verbose_name="ФИО в родительном падеже")
+    office = models.ForeignKey(Office, blank=True, null=True, on_delete=models.SET_NULL, verbose_name="Офис")
+
+    def get_fio(self):
+        if ((self.last_name + self.first_name + self.mid_name).strip() == ''):
+            fio = self.user.username
+        else:
+            fio = self.last_name + ' ' + self.first_name[0] + '.' + self.mid_name[0]+'.'
+        
+        return fio 
+    
+    def get_full_name(self):
+        return self.last_name + ' ' + self.first_name + ' ' + self.mid_name
+    
+    def __str__(self):
+        return self.get_fio()
+ 
 
 class Manager(Person):
     class Meta:
@@ -171,7 +172,6 @@ class Manager(Person):
         verbose_name_plural = "Менеджеры"
         
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    manager_office = models.ForeignKey(Office, blank=True, null=True, on_delete=models.SET_NULL, verbose_name="Офис")
     
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):

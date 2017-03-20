@@ -13,11 +13,12 @@ app_name = 'yurjin_tour'
 urlpatterns = [
     #Аутентификация
     url(r'^login/', login, name = 'login'),
-    url(r'^logout/', logout, {"next_page": 'yurjin_tour:login'}, name = 'logout'),
+    url(r'^logout/', logout, {"next_page": 'index'}, name = 'logout'),
     url(r'^profile/$', login_required(views.ProfileEditView.as_view()), name='profile_edit'),
     
     #url(r'^(?P<page>[0-9])*$', login_required(views.IndexView.as_view()), name='index'),
-    url(r'^(?P<page>[0-9])*$', login_required(views.ContractListView.as_view()), name='index'),
+    #url(r'^(?P<page>[0-9])*$', login_required(views.ContractListView.as_view()), name='index'),
+    url(r'^$', login_required(views.ContractListView.as_view()), name='index'),
     #url(r'^contracts$', views.ContractListView.as_view(), name='contract_list'),
     url(r'^tourists/$', login_required(views.TouristListView.as_view()), name='tourist_list'),
     url(r'^contracts/$', login_required(views.ContractArchiveIndexView.as_view()), name='contract_archive'),

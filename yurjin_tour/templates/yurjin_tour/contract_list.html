@@ -1,4 +1,4 @@
-    
+    {% include "yurjin_tour/filter_form.html" %}
     {% if perms.yurjin_tour.add_contract %}<a href="{% url 'yurjin_tour:contract_add' %}" class="addlink">Добавить Договор</a>{% endif %}
     {% if contract_list %}
         <table>

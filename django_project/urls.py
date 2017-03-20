@@ -27,6 +27,4 @@ urlpatterns = [
     url(r'^yurjin_tour/', include('yurjin_tour.urls')),    
     
     url(r'^tourist_list/$',TouristList.as_view(),name='tourist_list'),
-    
-    
 ]

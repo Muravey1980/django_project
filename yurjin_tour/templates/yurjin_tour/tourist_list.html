@@ -1,8 +1,11 @@
-{% extends 'yurjin_tour/base.html' %}
+{% extends 'base.html' %}
 {% block title %}Туристы{% endblock %}
 
 {% block content %}
-<a href="{% url 'yurjin_tour:tourist_add' %}" class="addlink">Добавить туриста</a>
+
+    {% include "yurjin_tour/filter_form.html" %}
+    
+    <a href="{% url 'yurjin_tour:tourist_add' %}" class="addlink">Добавить туриста</a>
     {% if tourist_list %}
         <table ><th>Список туристов:</th>
             {% for tourist in tourist_list %}
