@@ -1,13 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-import datetime
+#import datetime
+from django.utils import timezone
+
 from number_to_text import num2text
 from math import modf
 
+from django.contrib import admin
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from _datetime import date
 
 
 # Create your models here.
@@ -135,10 +139,11 @@ class Status(models.Model):
         verbose_name = "Статус"
         verbose_name_plural = "Статусы"
         
-    status_name = models.CharField(max_length=200)
+    status_name = models.CharField(max_length=50)
+    status_full_name = models.CharField(max_length=200)
     
     def __str__(self):
-        return self.status_name
+        return self.status_full_name
 
   
 class Person(models.Model):
@@ -239,6 +244,9 @@ class Contract(models.Model):
     medical_insurance = models.BooleanField(blank=True, verbose_name="Включена медицинская страховка")
     non_departure_insurance = models.BooleanField(blank=True, verbose_name="Включена страховка от невыезда")
     
+    #payments = models.ManyToOneRel(to="Payment",field='payment_sum',field_name='Payments')
+    #payments = models.ManyToManyField("Payment", related_name='payments', verbose_name="список платежей") 
+    
     
     doc_get_date = models.DateField(blank=True, null=True, verbose_name="Дата получения документов клиентом")
     
@@ -262,9 +270,61 @@ class Contract(models.Model):
         sum_str = num2text(sum_arr[1],rub)+' '+num2text(sum_arr[0]*100,kop)
         return sum_str
     
-
+    def is_editable (self):
+        result=True
+        if (self.contract_sum > 0 and self.get_payment_sum() == 0 and self.tour_finish_date < timezone.datetime.today()):
+            result = False
+        return result
     
+    def filled_correctly(self):
+        result=True
+        if(
+            self.contract_date == None
+            or self.tour_begin_date == None
+            or self.tour_finish_date == None
+            or self.hotel_begin_date == None
+            or self.hotel_begin_date == None
+            or self.hotel_finish_date == None
+            
+            or self.client == None
+            or self.tour_operator == None
+            or self.resort == None
+            or self.tourist_list.count()<1
+            or self.hotel_name == ''
+            or self.room_type == None
+            or self.board == None
+            
+            or self.contract_sum == 0
+            or self.prepayment_sum == 0
+            ):
+            result=False
+        
+        return result
+    
+    def get_contract_status(self):
+        #contract_class = "standard"
+        contract_class = "draft"
+        if(self.filled_correctly() == False):
+            contract_class = "draft"
+        elif(self.contract_sum > 0 and self.get_payment_sum() > 0):
+            contract_class = "unpaid"
+        elif(self.tour_finish_date < timezone.datetime.now().date()):
+            contract_class = "closed"
 
+        return Status.objects.filter(status_name=contract_class).get()
+
+
+class Payment(models.Model):
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
+    
+    contract_id = models.ForeignKey(Contract)
+    payment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма платежа")
+    
+    def __str__(self):
+        return str(self.payment_sum)
+    
 #class City(models.Model):
 #    class Meta:
 #        verbose_name = "Город"

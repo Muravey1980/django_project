@@ -52,6 +52,11 @@ class ContractEditView(SuccessMessageMixin,generic.UpdateView):
     success_url = reverse_lazy('yurjin_tour:index')
     success_message = "Договор успешно изменен"        
 
+    def form_valid(self, form):
+        form.instance.status = form.instance.get_contract_status()
+        
+        return super(ContractEditView, self).form_valid(form)
+
 
 class ContractCreateView(SuccessMessageMixin,generic.CreateView):
     def get_num(self):
@@ -68,6 +73,7 @@ class ContractCreateView(SuccessMessageMixin,generic.CreateView):
         form.instance.office = self.request.user.manager.office
         form.instance.signatory = self.request.user.manager.office.tour_agency.director
         form.instance.contract_num = self.get_num()
+        form.instance.status = self.get_status()
         
         return super(ContractCreateView, self).form_valid(form)    
   

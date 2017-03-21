@@ -41,10 +41,18 @@
 	
 }
 
-#contract_grid td{
-	background-color: maroon;
+tr.standard{
+	background-color: green;
 }
-
+tr.draft{
+	background-color: white;
+}
+tr.unpaid{
+	background-color: orange;
+}
+tr.closed{
+	color: grey;
+}
 
 #contract_grid odd{
 
