@@ -244,8 +244,8 @@ class Contract(models.Model):
     medical_insurance = models.BooleanField(blank=True, verbose_name="Включена медицинская страховка")
     non_departure_insurance = models.BooleanField(blank=True, verbose_name="Включена страховка от невыезда")
     
-    #payments = models.ManyToOneRel(to="Payment",field='payment_sum',field_name='Payments')
-    #payments = models.ManyToManyField("Payment", related_name='payments', verbose_name="список платежей") 
+    #payments = models.ManyToOneRel(to="Payment",field='contract_id',field_name='Payments')
+    #payments = models.ManyToManyField("Payment", related_name='payments', verbose_name="Список платежей") 
     
     
     doc_get_date = models.DateField(blank=True, null=True, verbose_name="Дата получения документов клиентом")
@@ -319,11 +319,14 @@ class Payment(models.Model):
         verbose_name = "Платеж"
         verbose_name_plural = "Платежи"
     
-    contract_id = models.ForeignKey(Contract)
+    contract = models.ForeignKey(Contract,verbose_name="Договор")
+    manager = models.ForeignKey(Manager,verbose_name="Менеджер")
+    payment_date = models.DateField(verbose_name="Дата внесения")
     payment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма платежа")
+     
     
     def __str__(self):
-        return str(self.payment_sum)
+        return 'Платеж по договору'+str(self.contract)+'на сумму '+str(self.payment_sum)
     
 #class City(models.Model):
 #    class Meta:

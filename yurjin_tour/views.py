@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from django.core.urlresolvers import reverse_lazy
 
-from .models import Contract, Tourist, Manager
+from .models import Contract, Tourist, Manager, Payment
 from . import forms
 
 from common.views import FilteredAndSortedView
@@ -20,9 +20,86 @@ from django.template.context_processors import request
 from django.contrib.messages.views import SuccessMessageMixin
 
 from dal import autocomplete
-from yurjin_tour.models import Office
+from yurjin_tour.models import Office, Tourist
 from lib2to3.fixes.fix_input import context
+from django.views.generic.base import TemplateView
 
+
+from django.forms import modelformset_factory
+from django.shortcuts import render_to_response
+
+class PaymentPrint(generic.TemplateView): 
+    template_name = "yurjin_tour/payment_print.html"
+
+class PaymentCreateView(generic.CreateView):
+    def form_valid(self, form):
+        form.instance.manager = self.request.user.manager
+        
+        return super(PaymentCreateView, self).form_valid(form)    
+  
+    template_name = 'yurjin_tour/payment_edit.html'
+    model = Payment    
+    initial = {
+                'payment_date': timezone.datetime.today(),
+                }
+    form_class=forms.PaymentForm
+    success_url = reverse_lazy('yurjin_tour:payment_list')
+    success_message = "Платеж успешно внесен"
+
+
+class PaymentDeleteView(generic.DeleteView):
+    model = Payment
+    template_name = "yurjin_tour/payment_delete.html"
+    success_url = reverse_lazy('yurjin_tour:payment_list')
+
+
+class PaymentListView(generic.ListView):
+    template_name = 'yurjin_tour/payment_list.html'
+    model = Payment
+    paginate_by = 50
+
+    def get_queryset(self):
+        q=Payment.objects.all()
+        #if (self.request.user.is_superuser):
+        #    pass
+        #elif (self.request.user.manager == self.request.user.manager.office.tour_agency.director):
+        #    q=q.filter(contract__in=Contract.objects.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency)))
+        #else:
+        #    q=q.filter(office=self.request.user.manager.office)
+        #if (self.filter):
+        #    q=q.filter(tourist_list__in=Tourist.objects.filter(last_name__icontains=self.filter)).distinct()
+
+        #q=q.filter(office=self.request.user.manager.manager_office)
+        
+        #contract_date__lte=timezone.now()
+        #filter=()
+        #return Contract.objects.filter(manager=self.request.user.manager,contract_date__lte=timezone.now()).order_by('-contract_date','-contract_num')
+        #return Contract.objects.filter(manager=self.request.user.manager,contract_date__lte=timezone.now()).order_by('-contract_date','-contract_num')
+        return q.order_by('-payment_date')
+
+
+class PaymentListEditView(generic.TemplateView):
+    template_name="yurjin_tour/payment_list_edit.html"   
+    
+    def get_context_data(self, **kwargs):
+        context = super(PaymentListView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = forms.PaymentFormset(self.request.POST)
+        else:
+            context['formset'] = forms.PaymentFormset()
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        payment_form = context['formset']
+        if payment_form.is_valid():
+            self.object = form.save()
+            payment_form.instance = self.object
+            payment_form.save()
+            return HttpResponseRedirect('thanks/')
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+    
 
 class ProfileEditView(SuccessMessageMixin,generic.UpdateView):
     def get_object(self):
@@ -132,7 +209,6 @@ class ContractMonthArchiveView(generic.MonthArchiveView,ContractList):
     month_format = '%m' 
     context_object_name = 'contract_list'
     #template_name = 'yurjin_tour/contract_list.html'
-
 
 
 class ContractListView(FilteredAndSortedView, generic.ListView):

@@ -13,12 +13,16 @@ from django.forms.models import inlineformset_factory
 from django.contrib.admin import widgets
 
 from dal import autocomplete
-from .models import Contract, Tourist, Manager
+from .models import Contract, Tourist, Manager, Payment
 
 import dal
 
 from django.conf import settings
 from django.templatetags.i18n import language
+
+
+from django.forms.models import modelformset_factory
+
 
 
 class ProfileForm(forms.ModelForm):
@@ -28,7 +32,6 @@ class ProfileForm(forms.ModelForm):
 
 class ContractForm(forms.ModelForm):
     class Meta:
-        
         model = Contract
         #fields = ['contract_num', 'contract_date', 'tourist_list']
         #fields = ('__all__')
@@ -42,7 +45,9 @@ class ContractForm(forms.ModelForm):
             'hotel_name','room_type','hotel_begin_date', 'hotel_finish_date',
             'board',
             'transfer','excursion','russian_guide','visa_support',
-            'medical_insurance','non_departure_insurance']
+            'medical_insurance','non_departure_insurance',
+            #'payments'
+            ]
         
         widgets = {
             #'contract_date': forms.SelectDateWidget(years=range(timezone.now().year-3,timezone.now().year+3)),
@@ -85,3 +90,19 @@ class TouristForm(forms.ModelForm):
             'passport_date': widgets.AdminDateWidget(),
             'international_passport_date_of_expiry': widgets.AdminDateWidget(),
             }
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['contract','payment_date','payment_sum']
+        
+        widgets = {
+            'payment_date': widgets.AdminDateWidget(),
+            'contract': autocomplete.ModelSelect2(),
+            }
+
+PaymentFormset = modelformset_factory(Payment, form=PaymentForm,can_delete=True)
+
+
+                

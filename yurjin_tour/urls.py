@@ -21,6 +21,16 @@ urlpatterns = [
     url(r'^$', login_required(views.ContractListView.as_view()), name='index'),
     #url(r'^contracts$', views.ContractListView.as_view(), name='contract_list'),
     url(r'^tourists/$', login_required(views.TouristListView.as_view()), name='tourist_list'),
+    
+    url(r'^payments/$', login_required(views.PaymentListView.as_view()), name='payment_list'),
+    url(r'^payment/(?P<pk>[0-9]+)/print/$', login_required(views.PaymentPrint.as_view()), name='payment_print'),
+    #url(r'^payment/(?P<pk>[0-9]+)/edit/$', permission_required('yurjin_tour.edit_payment')(views.PaymentEditView.as_view()), name='payment_edit'),
+    url(r'^payment/add/$', permission_required('yurjin_tour.add_payment')(views.PaymentCreateView.as_view()),name = 'payment_add'),
+    url(r'^payment/(?P<pk>[0-9]+)/delete/$', permission_required('yurjin_tour.delete_payment')(views.PaymentDeleteView.as_view()),name = 'payment_delete'),
+    
+    
+    #url(r'^payments_edit/$', login_required(views.PaymentListEditView.as_view()), name='payment_list_edit'),
+    
     url(r'^contracts/$', login_required(views.ContractArchiveIndexView.as_view()), name='contract_archive'),
     url(r'^contracts/(?P<year>[0-9]{4})/$', login_required(views.ContractYearArchiveView.as_view()), name='contract_archive_year'),
     url(r'^contracts/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', login_required(views.ContractMonthArchiveView.as_view()), name='contract_archive_month'),

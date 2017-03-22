@@ -13,7 +13,6 @@
       </th>
       <td>
           {{ field }}
-          
           {% if field.errors|length > 0 %}
               <div class="error-list">
                   {% for error in field.errors %}
@@ -25,6 +24,10 @@
           {% if field.help_text %}
               <div class="help">{{ field.help_text }}</div>
           {% endif %}
+          
+          {% if field.name == "prepayment_sum" %}
+              {% include 'yurjin_tour/contract_payments.html' %}
+          {% endif %}    
       </td>
   </tr>
 {% endfor %}
