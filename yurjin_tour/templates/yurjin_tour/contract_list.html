@@ -22,9 +22,14 @@
                     <!-- <td>{{ contract.prepayment_sum }}</td> -->
                     <td>{{ contract.manager }}</td>
                     <td>{{ contract.office }}</td>
-                    <td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
+                    
                     <td>{% if perms.yurjin_tour.edit_contract and contract.is_editable %}<a href="{% url 'yurjin_tour:contract_edit' contract.id %}">Изменить</a>{% endif %}</td>
-                    <td>{% if perms.yurjin_tour.delete_contract and contract.is_editable %}<a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a>{% endif %}</td>
+                    <td>
+                        {% if perms.yurjin_tour.delete_contract and contract.is_editable %}
+                            <a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a>
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
                 </tr>
             {% endfor %}
         </table>

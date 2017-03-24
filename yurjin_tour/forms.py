@@ -25,11 +25,6 @@ from django.forms.models import modelformset_factory
 
 
 
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Manager
-        fields = ['last_name', 'first_name', 'mid_name', 'full_name_r']
-
 class ContractForm(forms.ModelForm):
     class Meta:
         model = Contract
@@ -101,8 +96,12 @@ class PaymentForm(forms.ModelForm):
             'payment_date': widgets.AdminDateWidget(),
             'contract': autocomplete.ModelSelect2(),
             }
-
-PaymentFormset = modelformset_factory(Payment, form=PaymentForm,can_delete=True)
-
-
                 
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Manager
+        fields = ['last_name', 'first_name', 'mid_name', 'full_name_r']
+
+
+#PaymentFormset = modelformset_factory(Payment, form=PaymentForm,can_delete=True)
