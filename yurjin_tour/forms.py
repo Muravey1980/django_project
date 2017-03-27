@@ -90,10 +90,14 @@ class TouristForm(forms.ModelForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['contract','payment_date','payment_sum']
+        fields = [
+                'contract',
+                #'payment_date',
+                'payment_sum'
+                ]
         
         widgets = {
-            'payment_date': widgets.AdminDateWidget(),
+            #'payment_date': widgets.AdminDateWidget(),
             'contract': autocomplete.ModelSelect2(),
             }
                 

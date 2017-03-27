@@ -50,6 +50,7 @@ class PaymentListView(generic.ListView):
 class PaymentCreateView(generic.CreateView):
     def form_valid(self, form):
         form.instance.manager = self.request.user.manager
+        form.instance.office = self.request.user.manager.office
         
         return super(PaymentCreateView, self).form_valid(form)    
   
@@ -85,9 +86,7 @@ class IndexView(generic.ListView):
     #if (get(page)==None): page=1
 
     def get_queryset(self):
-        return Contract.objects.filter(
-            contract_date__lte=timezone.now()
-        ).order_by('-contract_date','-contract_num')
+        return Contract.objects.filter(contract_date__lte=timezone.now()).order_by('-contract_date','-contract_num')
         
 
 class ContractListView(FilteredAndSortedView, generic.ListView):
@@ -111,15 +110,16 @@ class ContractListView(FilteredAndSortedView, generic.ListView):
         if (self.request.user.is_superuser):
             pass
         elif (self.request.user.manager == self.request.user.manager.office.tour_agency.director):
-            q=q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
+            #q=q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
+            q=q.filter(office__tour_agency=self.request.user.manager.office.tour_agency)
         else:
             q=q.filter(office=self.request.user.manager.office)
         
         if (self.filter):
-            q=q.filter(tourist_list__in=Tourist.objects.filter(last_name__icontains=self.filter)).distinct()
+            #q=q.filter(tourist_list__in=Tourist.objects.filter(last_name__icontains=self.filter)).distinct()
+            q=q.filter(tourist_list__last_name__icontains=self.filter).distinct()
 
         #q=q.filter(office=self.request.user.manager.manager_office)
-        
         #contract_date__lte=timezone.now()
         #filter=()
         #return Contract.objects.filter(manager=self.request.user.manager,contract_date__lte=timezone.now()).order_by('-contract_date','-contract_num')
@@ -130,6 +130,12 @@ class ContractListView(FilteredAndSortedView, generic.ListView):
 class ContractCreateView(SuccessMessageMixin,generic.CreateView):
     def get_num(self):
         #last_contract = Contract.objects.latest(field_name='contract_date')
+        #last_contract = Contract.objects.order_by('-contract_date','-contract_num')[0:1].get()
+        #if (last_contract.contract_date.year==timezone.datetime.today().year and last_contract.contract_date.month==timezone.datetime.today().month):
+        #    new_num=last_contract.contract_num+1
+        #last_month_contract = Contract.objects.filter(contract_date__month=timezone.now().month).last().get()
+        #if (last_month_contract.exists()):
+            #new_num=last_month_contract.contract_num+1
         last_contract = Contract.objects.order_by('-contract_date','-contract_num')[0:1].get()
         if (last_contract.contract_date.year==timezone.datetime.today().year and last_contract.contract_date.month==timezone.datetime.today().month):
             new_num=last_contract.contract_num+1
@@ -142,7 +148,7 @@ class ContractCreateView(SuccessMessageMixin,generic.CreateView):
         form.instance.office = self.request.user.manager.office
         form.instance.signatory = self.request.user.manager.office.tour_agency.director
         form.instance.contract_num = self.get_num()
-        form.instance.status = self.get_status()
+        form.instance.status = form.instance.get_status()
         
         return super(ContractCreateView, self).form_valid(form)    
   
@@ -235,7 +241,8 @@ class TouristListView(FilteredAndSortedView, generic.ListView):
         if (self.request.user.is_superuser):
             pass
         else:
-            q = q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
+            #q = q.filter(office__in=Office.objects.filter(tour_agency=self.request.user.manager.office.tour_agency))
+            q = q.filter(office__tour_agency=self.request.user.manager.office.tour_agency)
         if (self.filter):
             q = q.filter(last_name__icontains = self.filter)
         
