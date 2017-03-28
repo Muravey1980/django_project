@@ -7,22 +7,20 @@ Created on 2016-10-31
 #from django.utils.encoding import force_text
 #from __future__ import __all__
 
+#import dal
+#from django.conf import settings
+#from django.templatetags.i18n import language
+
+#from django.utils import timezone
+#from django.forms.models import inlineformset_factory
+#from django.forms.models import modelformset_factory
+
+from django.core.exceptions import ValidationError
+
 from django import forms
-from django.utils import timezone
-from django.forms.models import inlineformset_factory
 from django.contrib.admin import widgets
-
 from dal import autocomplete
-from .models import Contract, Tourist, Manager, Payment
-
-import dal
-
-from django.conf import settings
-from django.templatetags.i18n import language
-
-
-from django.forms.models import modelformset_factory
-
+from .models import Contract, Tourist, Manager, Payment, PaymentMethod
 
 
 class ContractForm(forms.ModelForm):
@@ -52,8 +50,8 @@ class ContractForm(forms.ModelForm):
             
             'contract_date': widgets.AdminDateWidget(),
                         
-            'manager': autocomplete.ModelSelect2(),
-            'office': autocomplete.ModelSelect2(),
+            #'manager': autocomplete.ModelSelect2(),
+            #'office': autocomplete.ModelSelect2(),
             'client': autocomplete.ModelSelect2(),
             'status': autocomplete.ModelSelect2(),
             
@@ -61,7 +59,7 @@ class ContractForm(forms.ModelForm):
             'tour_finish_date': widgets.AdminDateWidget(),
             
             
-            'signatory': autocomplete.ModelSelect2(),
+            #'signatory': autocomplete.ModelSelect2(),
             'tourist_list': autocomplete.ModelSelect2Multiple(url='tourist_list'),
             #'tourist_list': TouristList(url='tourist_list'),
             'tour_operator': autocomplete.ModelSelect2(),
@@ -71,14 +69,34 @@ class ContractForm(forms.ModelForm):
             'room_type': autocomplete.ModelSelect2(),
             'board': autocomplete.ModelSelect2(),
             
-            'doc_get_date': widgets.AdminDateWidget(),
+            #'doc_get_date': widgets.AdminDateWidget(),
         }
+
+    def clean(self):
+        cleaned_data = super(ContractForm, self).clean()
+        if cleaned_data["contract_sum"] < 0:
+            raise ValidationError("Сумма контракта не может быть меньше нуля",code = "invalid")
+        if cleaned_data["prepayment_sum"] < 0:
+            raise ValidationError("Сумма предоплаты не может быть меньше нуля",code = "invalid")    
+        if cleaned_data["contract_sum"] < cleaned_data["prepayment_sum"]:    
+            raise ValidationError("Сумма предоплаты не может быть больше суммы контракта",code = "invalid")
+        if cleaned_data["tour_finish_date"] < cleaned_data["tour_begin_date"]:    
+            raise ValidationError("Дата окончания тура не может быть меньше даты начала тура",code = "invalid")
+        if cleaned_data["hotel_finish_date"] < cleaned_data["hotel_begin_date"]:    
+            raise ValidationError("Дата выезда из отеля не может быть меньше даты въезда в отель",code = "invalid")
+        if cleaned_data["hotel_begin_date"] < cleaned_data["tour_begin_date"]:    
+            raise ValidationError("Дата въезда в отель не может быть меньше даты начала тура ",code = "invalid")
+        if cleaned_data["tour_finish_date"] < cleaned_data["hotel_finish_date"]:    
+            raise ValidationError("Дата окончания тура не может быть меньше даты выезда из отеля",code = "invalid")
+            
+        return cleaned_data
 
 
 class TouristForm(forms.ModelForm):
     class Meta:
         model = Tourist
         fields = ('__all__')
+        exclude = ['office',]
         
         widgets = {    
             'birthdate': widgets.AdminDateWidget(),
@@ -92,12 +110,13 @@ class PaymentForm(forms.ModelForm):
         model = Payment
         fields = [
                 'contract',
-                #'payment_date',
+                #'payment_method',
                 'payment_sum'
                 ]
         
         widgets = {
             #'payment_date': widgets.AdminDateWidget(),
+            #'payment_method': autocomplete.ModelSelect2(),
             'contract': autocomplete.ModelSelect2(),
             }
                 

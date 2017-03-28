@@ -6,17 +6,21 @@
             <th>Договоры  за {{month|date:'F Y'}}</th>
         {% endif %}
             <tr>
-                <td></td>
-                <td>Менеджер</td>
-                <td>Офис</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <th>Статус</th>
+                <th>Оплата</th>
+                <th>Договор</th>
+                <th>Менеджер</th>
+                <th>Офис</th>
+                <th>Изменить</th>
+                <th>Удалить</th>
+                <th>Распечатать</th>
+                <th></th>
             </tr>
             {% for contract in contract_list %}
                 <!-- <tr {% if contract.get_payment_sum > 0 or contract.contract_sum == 0 %} class="unpaid"{% endif %} > -->
-                <tr class="{{ contract.status.status_name }}">
+                <tr class="{{ contract.get_status.status_name }}">
+                    <td>{{ contract.status }}</td>
+                    <td>{{ contract.get_status }}</td>
                     <td>{{ contract }}</td>
                     <!-- <td>{{ contract.contract_sum }}</td> -->
                     <!-- <td>{{ contract.prepayment_sum }}</td> -->
@@ -29,8 +33,13 @@
                             <a href="{% url 'yurjin_tour:contract_delete' contract.id %}">Удалить</a>
                         {% endif %}
                     </td>
-                    <td><a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
+                    <td>
+                        {% if contract.status.status_name == 'signed' %}
+                            <a href="{% url 'yurjin_tour:contract_print' contract.id %}">Распечатать</a></td>
+                        {% endif %}    
                 </tr>
+            {% empty %}
+                <p>No contracts are available.</p>
             {% endfor %}
         </table>
     {% else %}

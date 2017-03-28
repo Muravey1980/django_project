@@ -3,12 +3,15 @@
 
 {% block title %}Изменение договора{% endblock %}
 {% block additional_css %}
+    {# {{ form.media }} #}
 {% endblock %}
 
 {% block content %}
     <form action="" method="post">
         <table>
         {% include 'form.html' %}
+        {# {% csrf_token %} #}
+        {# {{ form.as_table }} #}
         </table>
         <input type="submit" value="Сохранить" />
     </form>

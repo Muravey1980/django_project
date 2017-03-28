@@ -1,7 +1,11 @@
 <div class="help">
-    <br>Дополнительные платежи:<br>
-    {% for payment in contract.payment_set.all %}
-        {{payment}}<br>
-    {% endfor %}
-    Итого: 123123123
+    {% if contract.payment_set.all.count > 0 %}
+        <br>Дополнительные платежи по договору:<br>
+        {% for payment in contract.payment_set.all %}
+            {{payment}}<br>
+        {% endfor %}
+        Итого с учетом предоплаты: {{ contract.get_all_payments_sum }} рублей.   
+    {% else %}
+        Дополнительных платежей по этому договору не найдено.
+    {% endif %}
 </div>

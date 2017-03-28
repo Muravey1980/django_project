@@ -14,9 +14,11 @@ from django.utils import timezone
 from django.views import generic
 from django.contrib.messages.views import SuccessMessageMixin
 
+from django.db.models import Q
+
 from dal import autocomplete
 
-from .models import Contract, Office, Tourist, Manager, Payment
+from .models import Contract, Tourist, Manager, Payment
 from common.views import FilteredAndSortedView
 from . import forms
 
@@ -93,7 +95,7 @@ class ContractListView(FilteredAndSortedView, generic.ListView):
     #filter=None
     template_name = 'yurjin_tour/index.html'
     model = Contract
-    paginate_by = 10
+    paginate_by = 20
     #template_name = 'yurjin_tour/contract_list.html'
     #context_object_name = 'latest_contract_list'
     
@@ -117,7 +119,8 @@ class ContractListView(FilteredAndSortedView, generic.ListView):
         
         if (self.filter):
             #q=q.filter(tourist_list__in=Tourist.objects.filter(last_name__icontains=self.filter)).distinct()
-            q=q.filter(tourist_list__last_name__icontains=self.filter).distinct()
+            #q=q.filter(tourist_list__last_name__icontains=self.filter).distinct()
+            q=q.filter(Q(client__last_name__icontains=self.filter) | Q(tourist_list__last_name__icontains=self.filter)).distinct()
 
         #q=q.filter(office=self.request.user.manager.manager_office)
         #contract_date__lte=timezone.now()
@@ -180,7 +183,7 @@ class ContractUpdateView(SuccessMessageMixin,generic.UpdateView):
     success_message = "Договор успешно изменен"        
 
     def form_valid(self, form):
-        form.instance.status = form.instance.get_contract_status()
+        form.instance.status = form.instance.get_status()
         
         return super(ContractUpdateView, self).form_valid(form)
 
@@ -234,7 +237,7 @@ class TouristList(autocomplete.Select2QuerySetView):
 class TouristListView(FilteredAndSortedView, generic.ListView):
     #template_name = 'yurjin_tour/tourist_list.html'
     model = Tourist
-    paginate_by = 5
+    paginate_by = 20
     
     def get_queryset(self):
         q = Tourist.objects.all()

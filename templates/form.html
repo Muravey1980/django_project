@@ -3,6 +3,14 @@
 {% endblock %}
 
 {% csrf_token %}
+
+{% if form.non_field_errors %}
+    <tr>
+        {% for non_field_error in form.non_field_errors %}
+            <td colspan="2"><ul class="errorlist nonfield"><li> {{ non_field_error }}</li></ul></td>
+        {% endfor %}
+    </tr>  
+{% endif %}    
 {% for field in form.hidden_fields %}
   {{ field }}
 {% endfor %}

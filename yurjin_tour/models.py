@@ -1,6 +1,8 @@
 #import datetime
 #from django.contrib import admin
 #from _datetime import date
+#from enum import unique
+#from pip.cmdoptions import editable
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -11,7 +13,7 @@ from django.utils import timezone
 from math import modf
 
 from number_to_text import num2text
-from enum import unique
+
 
 # Create your models here.
 class Entity(models.Model):
@@ -211,10 +213,10 @@ class Contract(models.Model):
         verbose_name = "Договор"
         verbose_name_plural = "Договоры"
         
-    contract_num = models.IntegerField(unique_for_month = "contract_date", verbose_name="Номер договора")
+    contract_num = models.IntegerField(unique_for_month = "contract_date", editable = False, verbose_name="Номер договора")
     contract_date = models.DateField(blank=True, null=True, verbose_name="Дата договора")
-    manager = models.ForeignKey(Manager, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Менеджер")
-    office = models.ForeignKey(Office, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Офис")
+    manager = models.ForeignKey(Manager, on_delete = models.PROTECT, editable = False, blank=True, null=True, verbose_name="Менеджер")
+    office = models.ForeignKey(Office, on_delete = models.PROTECT, editable = False, blank=True, null=True, verbose_name="Офис")
     client = models.ForeignKey(Tourist, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Клиент")
     #airport_from1 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_from1', blank=True, null=True, verbose_name="Аэропорт отправления туда")
     #airport_to1 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_to1', blank=True, null=True, verbose_name="Аэропорт прибытия туда")
@@ -227,7 +229,7 @@ class Contract(models.Model):
     contract_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма контракта")
     prepayment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма предоплаты")
     signatory = models.ForeignKey(Manager, on_delete = models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
-    tourist_list = models.ManyToManyField(Tourist, related_name='tourist_list', verbose_name="Список туристов") 
+    tourist_list = models.ManyToManyField(Tourist, blank=True, related_name='tourist_list', verbose_name="Список туристов") 
     
     tour_operator = models.ForeignKey(TourOperator, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Туроператор")
     resort =  models.ForeignKey(Resort, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Курорт")
@@ -253,7 +255,7 @@ class Contract(models.Model):
     def get_hotel_nights(self):
         return (self.hotel_finish_date-self.hotel_begin_date).days
     
-    def get_payment_sum(self):
+    def get_postpayment_sum(self):
         return self.contract_sum - self.prepayment_sum
     
     def get_contract_sum_string(self):
@@ -269,17 +271,18 @@ class Contract(models.Model):
     
     def is_editable (self):
         result=True
-        if (self.contract_sum > 0 and self.get_payment_sum() == 0 and self.tour_finish_date < timezone.datetime.today()):
+        if (self.status==Status.objects.get(status_name='closed')):
             result = False
+        #if (self.contract_sum > 0 and self.get_postpayment_sum() == 0 and self.tour_finish_date < timezone.datetime.today()):
+        #    result = False
         return result
     
-    def filled_correctly(self):
+    def filled_fully(self):
         result=True
         if(
             self.contract_date == None
             or self.tour_begin_date == None
             or self.tour_finish_date == None
-            or self.hotel_begin_date == None
             or self.hotel_begin_date == None
             or self.hotel_finish_date == None
             
@@ -291,25 +294,41 @@ class Contract(models.Model):
             or self.room_type == None
             or self.board == None
             
-            or self.contract_sum == 0
-            or self.prepayment_sum == 0
+            or self.contract_sum <= 0
+            or self.prepayment_sum <= 0
+            or self.contract_sum < self.prepayment_sum
             ):
             result=False
         
-        return result
+        return result    
     
     def get_status(self):
-        #contract_class = "standard"
-        contract_class = "draft"
-        if(self.filled_correctly() == False):
+        if(self.filled_fully() == False):
             contract_class = "draft"
-        elif(self.contract_sum > 0 and self.get_payment_sum() > 0):
-            contract_class = "unpaid"
+        elif(self.get_all_payments_sum() < self.contract_sum):
+            contract_class = "signed"   
+        elif(self.get_all_payments_sum() == self.contract_sum):
+            contract_class = "paid"
         elif(self.tour_finish_date < timezone.datetime.now().date()):
             contract_class = "closed"
 
         return Status.objects.get(status_name=contract_class)
+    
+    def get_all_payments_sum(self):
+        total_sum=self.prepayment_sum
+        if (self.payment_set.all().count()>0):
+            total_sum+=self.payment_set.all().aggregate(models.Sum('payment_sum'))['payment_sum__sum']
+        return total_sum
 
+class PaymentMethod(models.Model):
+    class Meta:
+        verbose_name = "Форма оплаты"
+        verbose_name_plural = "Формы оплаты"
+    
+    method_name = models.CharField(max_length=200, verbose_name="Название")
+    
+    def __str__(self):
+        return (self.method_name)
 
 class Payment(models.Model):
     class Meta:
@@ -317,13 +336,14 @@ class Payment(models.Model):
         verbose_name_plural = "Платежи"
     
     contract = models.ForeignKey(Contract, on_delete = models.PROTECT, verbose_name="Договор")
-    manager = models.ForeignKey(Manager, on_delete = models.PROTECT, verbose_name="Менеджер")
-    office = models.ForeignKey(Office, on_delete = models.PROTECT, verbose_name="Офис")
-    payment_date = models.DateTimeField(auto_now_add=True,verbose_name="Дата внесения")
+    manager = models.ForeignKey(Manager, on_delete = models.PROTECT, editable = False, verbose_name="Менеджер")
+    office = models.ForeignKey(Office, on_delete = models.PROTECT, editable = False, verbose_name="Офис")
+    payment_method = models.ForeignKey(PaymentMethod, on_delete = models.PROTECT, verbose_name="Форма оплаты")
+    payment_date = models.DateTimeField(auto_now_add=True, editable = False, verbose_name="Дата внесения")
     payment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма платежа")
     
     def __str__(self):
-        return 'Платеж по договору'+str(self.contract)+'на сумму '+str(self.payment_sum)
+        return 'Платеж по договору '+str(self.contract)+' на сумму '+str(self.payment_sum)
     
 #class City(models.Model):
 #    class Meta:

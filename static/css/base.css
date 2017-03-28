@@ -41,14 +41,14 @@
 	
 }
 
-tr.standard{
-	background-color: green;
-}
 tr.draft{
 	background-color: white;
 }
-tr.unpaid{
+tr.signed{
 	background-color: orange;
+}
+tr.paid{
+	background-color: green;
 }
 tr.closed{
 	color: grey;
