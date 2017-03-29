@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.admin import widgets
 from dal import autocomplete
-from .models import Contract, Tourist, Manager, Payment, PaymentMethod
+from .models import Contract, Tourist, Manager, Payment #, PaymentMethod
 
 
 class ContractForm(forms.ModelForm):
@@ -33,7 +33,8 @@ class ContractForm(forms.ModelForm):
             #'contract_num', 
             'contract_date', 'client',
             'tour_begin_date', 'tour_finish_date',
-            'contract_sum', 'prepayment_sum',
+            'contract_sum', 
+            #'prepayment_sum',
             'tourist_list', 'tour_operator', 'resort',
             'hotel_name','room_type','hotel_begin_date', 'hotel_finish_date',
             'board',
@@ -76,18 +77,22 @@ class ContractForm(forms.ModelForm):
         cleaned_data = super(ContractForm, self).clean()
         if cleaned_data["contract_sum"] < 0:
             raise ValidationError("Сумма контракта не может быть меньше нуля",code = "invalid")
-        if cleaned_data["prepayment_sum"] < 0:
-            raise ValidationError("Сумма предоплаты не может быть меньше нуля",code = "invalid")    
-        if cleaned_data["contract_sum"] < cleaned_data["prepayment_sum"]:    
-            raise ValidationError("Сумма предоплаты не может быть больше суммы контракта",code = "invalid")
-        if cleaned_data["tour_finish_date"] < cleaned_data["tour_begin_date"]:    
-            raise ValidationError("Дата окончания тура не может быть меньше даты начала тура",code = "invalid")
-        if cleaned_data["hotel_finish_date"] < cleaned_data["hotel_begin_date"]:    
-            raise ValidationError("Дата выезда из отеля не может быть меньше даты въезда в отель",code = "invalid")
-        if cleaned_data["hotel_begin_date"] < cleaned_data["tour_begin_date"]:    
-            raise ValidationError("Дата въезда в отель не может быть меньше даты начала тура ",code = "invalid")
-        if cleaned_data["tour_finish_date"] < cleaned_data["hotel_finish_date"]:    
-            raise ValidationError("Дата окончания тура не может быть меньше даты выезда из отеля",code = "invalid")
+        #if cleaned_data["prepayment_sum"] < 0:
+        #    raise ValidationError("Сумма предоплаты не может быть меньше нуля",code = "invalid")    
+        #if cleaned_data["contract_sum"] < cleaned_data["prepayment_sum"]:    
+        #    raise ValidationError("Сумма предоплаты не может быть больше суммы контракта",code = "invalid")
+        if cleaned_data["tour_finish_date"] and cleaned_data["tour_begin_date"]:
+            if cleaned_data["tour_finish_date"] < cleaned_data["tour_begin_date"]:
+                raise ValidationError("Дата окончания тура не может быть меньше даты начала тура",code = "invalid")
+        if cleaned_data["hotel_finish_date"] and cleaned_data["hotel_begin_date"]:    
+            if cleaned_data["hotel_finish_date"] < cleaned_data["hotel_begin_date"]:
+                raise ValidationError("Дата выезда из отеля не может быть меньше даты въезда в отель",code = "invalid")
+        if cleaned_data["hotel_begin_date"] and cleaned_data["tour_begin_date"]:    
+            if cleaned_data["hotel_begin_date"] < cleaned_data["tour_begin_date"]:
+                raise ValidationError("Дата въезда в отель не может быть меньше даты начала тура ",code = "invalid")
+        if cleaned_data["tour_finish_date"] and cleaned_data["hotel_finish_date"]:    
+            if cleaned_data["tour_finish_date"] < cleaned_data["hotel_finish_date"]:
+                raise ValidationError("Дата окончания тура не может быть меньше даты выезда из отеля",code = "invalid")
             
         return cleaned_data
 
@@ -95,7 +100,7 @@ class ContractForm(forms.ModelForm):
 class TouristForm(forms.ModelForm):
     class Meta:
         model = Tourist
-        fields = ('__all__')
+        #fields = ('__all__')
         exclude = ['office',]
         
         widgets = {    
@@ -110,7 +115,7 @@ class PaymentForm(forms.ModelForm):
         model = Payment
         fields = [
                 'contract',
-                #'payment_method',
+                'payment_method',
                 'payment_sum'
                 ]
         
@@ -119,7 +124,11 @@ class PaymentForm(forms.ModelForm):
             #'payment_method': autocomplete.ModelSelect2(),
             'contract': autocomplete.ModelSelect2(),
             }
-                
+    
+    def clean(self):
+        cleaned_data = super(PaymentForm, self).clean()
+        if cleaned_data["payment_sum"] <= 0:
+            raise ValidationError("Сумма платежа должна быть положительным числом",code = "invalid")        
 
 class ProfileForm(forms.ModelForm):
     class Meta:

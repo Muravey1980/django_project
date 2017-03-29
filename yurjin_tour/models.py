@@ -213,7 +213,7 @@ class Contract(models.Model):
         verbose_name = "Договор"
         verbose_name_plural = "Договоры"
         
-    contract_num = models.IntegerField(unique_for_month = "contract_date", editable = False, verbose_name="Номер договора")
+    contract_num = models.IntegerField(unique_for_month = "contract_date", verbose_name="Номер договора")
     contract_date = models.DateField(blank=True, null=True, verbose_name="Дата договора")
     manager = models.ForeignKey(Manager, on_delete = models.PROTECT, editable = False, blank=True, null=True, verbose_name="Менеджер")
     office = models.ForeignKey(Office, on_delete = models.PROTECT, editable = False, blank=True, null=True, verbose_name="Офис")
@@ -222,12 +222,12 @@ class Contract(models.Model):
     #airport_to1 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_to1', blank=True, null=True, verbose_name="Аэропорт прибытия туда")
     #airport_from2 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_from2', blank=True, null=True, verbose_name="Аэропорт отправления обратно")
     #airport_to2 = models.ForeignKey(Airport, models.PROTECT, related_name='airport_to2', blank=True, null=True, verbose_name="Аэропорт прибытия обратно")
-    status = models.ForeignKey(Status, on_delete = models.PROTECT, blank=True, null=True, verbose_name="Статус")
+    status = models.ForeignKey(Status, on_delete = models.PROTECT, verbose_name="Статус")
     
-    tour_begin_date = models.DateField(blank=True, null=True, verbose_name="Дата начала тура")
-    tour_finish_date = models.DateField(blank=True, null=True, verbose_name="Дата окончания тура")
+    tour_begin_date = models.DateField(blank=True, verbose_name="Дата начала тура")
+    tour_finish_date = models.DateField(blank=True, verbose_name="Дата окончания тура")
     contract_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма контракта")
-    prepayment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма предоплаты")
+    #prepayment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма предоплаты")
     signatory = models.ForeignKey(Manager, on_delete = models.PROTECT, related_name='contract_signatory', blank=True, null=True, verbose_name="Подписант")
     tourist_list = models.ManyToManyField(Tourist, blank=True, related_name='tourist_list', verbose_name="Список туристов") 
     
@@ -251,12 +251,44 @@ class Contract(models.Model):
     
     def __str__(self):
         return 'Договор №' + self.contract_date.strftime('%m%y') + '-' + str(self.contract_num) + ' от ' + str(self.contract_date) + ' - ' + str(self.client)
+    
+    def is_printable(self):
+        result = False if self.status.status_name=='draft' else True
+        return result
+    
+    def is_deletable(self):
+        result=True
+        if self.status.status_name=='closed' or self.payment_set.count()>0:
+            result = False
+        return result
+    
+    def is_editable (self):
+        result=True
+        if self.status.status_name=='closed':
+            result = False
+        #if (self.contract_sum > 0 and self.get_postpayment_sum() == 0 and self.tour_finish_date < timezone.datetime.today()):
+        #    result = False
+        return result
 
     def get_hotel_nights(self):
         return (self.hotel_finish_date-self.hotel_begin_date).days
     
+    def get_prepayment_sum(self):
+        prepayment_sum = self.payment_set.all().order_by('payment_date').first().payment_sum if self.payment_set.all() else 0 
+        return prepayment_sum
+    
     def get_postpayment_sum(self):
-        return self.contract_sum - self.prepayment_sum
+        return self.contract_sum - self.get_prepayment_sum()
+    
+    def get_all_payments_sum(self):
+        #total_sum=self.prepayment_sum
+        #if (self.payment_set.all().count()>0):
+        #    total_sum+=self.payment_set.all().aggregate(models.Sum('payment_sum'))['payment_sum__sum']
+        total_sum = self.payment_set.all().aggregate(models.Sum('payment_sum'))['payment_sum__sum'] if self.payment_set.all() else 0
+        return total_sum
+        
+    def get_remain_payment_sum(self):
+        return self.contract_sum - self.get_all_payments_sum()
     
     def get_contract_sum_string(self):
         rub = ((u'рубль', u'рубля', u'рублей'), 'm')
@@ -269,13 +301,7 @@ class Contract(models.Model):
         sum_str = num2text(sum_arr[1],rub)+' '+num2text(sum_arr[0]*100,kop)
         return sum_str
     
-    def is_editable (self):
-        result=True
-        if (self.status==Status.objects.get(status_name='closed')):
-            result = False
-        #if (self.contract_sum > 0 and self.get_postpayment_sum() == 0 and self.tour_finish_date < timezone.datetime.today()):
-        #    result = False
-        return result
+
     
     def filled_fully(self):
         result=True
@@ -295,30 +321,26 @@ class Contract(models.Model):
             or self.board == None
             
             or self.contract_sum <= 0
-            or self.prepayment_sum <= 0
-            or self.contract_sum < self.prepayment_sum
+            #or self.prepayment_sum <= 0
+            #or self.contract_sum < self.prepayment_sum
             ):
             result=False
         
         return result    
     
     def get_status(self):
-        if(self.filled_fully() == False):
+        contract_class = "draft"
+        if self.filled_fully() == False:
             contract_class = "draft"
-        elif(self.get_all_payments_sum() < self.contract_sum):
-            contract_class = "signed"   
-        elif(self.get_all_payments_sum() == self.contract_sum):
-            contract_class = "paid"
-        elif(self.tour_finish_date < timezone.datetime.now().date()):
-            contract_class = "closed"
-
+        else:
+            if self.get_all_payments_sum() < self.contract_sum:
+                contract_class = "signed"
+            elif self.get_all_payments_sum() == self.contract_sum:
+                contract_class = "paid"
+                if self.tour_finish_date < timezone.datetime.now().date():
+                    contract_class = "closed"
         return Status.objects.get(status_name=contract_class)
     
-    def get_all_payments_sum(self):
-        total_sum=self.prepayment_sum
-        if (self.payment_set.all().count()>0):
-            total_sum+=self.payment_set.all().aggregate(models.Sum('payment_sum'))['payment_sum__sum']
-        return total_sum
 
 class PaymentMethod(models.Model):
     class Meta:
@@ -326,9 +348,11 @@ class PaymentMethod(models.Model):
         verbose_name_plural = "Формы оплаты"
     
     method_name = models.CharField(max_length=200, verbose_name="Название")
+    method_full_name = models.CharField(max_length=200, verbose_name="Полное наименование")
     
     def __str__(self):
-        return (self.method_name)
+        return (self.method_full_name)
+
 
 class Payment(models.Model):
     class Meta:
@@ -340,9 +364,10 @@ class Payment(models.Model):
     office = models.ForeignKey(Office, on_delete = models.PROTECT, editable = False, verbose_name="Офис")
     payment_method = models.ForeignKey(PaymentMethod, on_delete = models.PROTECT, verbose_name="Форма оплаты")
     payment_date = models.DateTimeField(auto_now_add=True, editable = False, verbose_name="Дата внесения")
-    payment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, null=True, verbose_name="Сумма платежа")
+    payment_sum = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name="Сумма платежа")
     
     def __str__(self):
+        #return 'Платеж по договору '+str(self.contract)+' на сумму '+str(self.payment_sum)
         return 'Платеж по договору '+str(self.contract)+' на сумму '+str(self.payment_sum)
     
 #class City(models.Model):

@@ -9,6 +9,7 @@
 {% block content %}
     <form action="" method="post">
         <table>
+        <tr><th>Номер договора</th><td>{{contract.contract_num}}</td></tr>
         {% include 'form.html' %}
         {# {% csrf_token %} #}
         {# {{ form.as_table }} #}

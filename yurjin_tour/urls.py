@@ -38,7 +38,7 @@ urlpatterns = [
     
     #Платежи
     url(r'^payments/$', login_required(views.PaymentListView.as_view()), name='payment_list'),
-    url(r'^payment/add/$', permission_required('yurjin_tour.add_payment')(views.PaymentCreateView.as_view()),name = 'payment_add'),
+    url(r'^payment/add/(?:\?contract_id=(?P<contract_id>\d+))?$', permission_required('yurjin_tour.add_payment')(views.PaymentCreateView.as_view()),name = 'payment_add'),
     url(r'^payment/(?P<pk>[0-9]+)/delete/$', permission_required('yurjin_tour.delete_payment')(views.PaymentDeleteView.as_view()),name = 'payment_delete'),
     url(r'^payment/(?P<pk>[0-9]+)/print/$', login_required(views.PaymentPrintView.as_view()), name='payment_print'),
     

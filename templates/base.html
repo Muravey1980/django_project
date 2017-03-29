@@ -28,6 +28,7 @@
         <ul>
             <li><a href="{% url 'index' %}">Главная</a>
             <li><a href="{% url 'yurjin_tour:index' %}">YurJango</a>
+                {% if user.is_authenticated %}
                 <ul>
                     <!-- <li><a href="{% url 'yurjin_tour:contract_archive' %}">Договоры</a></li> -->
                     <li><a href="{% url 'yurjin_tour:index' %}">Договоры</a>
@@ -35,6 +36,7 @@
                     <li><a href="{% url 'yurjin_tour:payment_list' %}">Платежи</a></li>
                     <li><a href="{% url 'yurjin_tour:contract_archive' %}">Отчеты</a></li>
                 </ul>
+                {% endif %}
             <!-- <li><a href="{% url 'admin:index' %}">Админка</a> -->
         </ul>
     </div>

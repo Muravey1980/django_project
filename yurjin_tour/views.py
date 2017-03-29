@@ -18,7 +18,7 @@ from django.db.models import Q
 
 from dal import autocomplete
 
-from .models import Contract, Tourist, Manager, Payment
+from .models import Contract, Tourist, Manager, Payment, PaymentMethod
 from common.views import FilteredAndSortedView
 from . import forms
 
@@ -55,11 +55,26 @@ class PaymentCreateView(generic.CreateView):
         form.instance.office = self.request.user.manager.office
         
         return super(PaymentCreateView, self).form_valid(form)    
-  
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            self.initial["contract"] = Contract.objects.get(id=self.request.GET['contract_id'])    
+        except KeyError:
+            self.initial["contract"] = None
+        try:
+            self.initial["payment_sum"] = self.request.GET['payment_sum']    
+        except KeyError:
+            self.initial["payment_sum"] = None    
+            
+        return super(PaymentCreateView, self).get(request, *args, **kwargs)
+
     template_name = 'yurjin_tour/payment_edit.html'
     model = Payment    
     initial = {
-                'payment_date': timezone.datetime.today(),
+                #'payment_date': timezone.datetime.today(),
+                'payment_method': PaymentMethod.objects.get(method_name='cash_payment'),
+                #'contract': Contract.objects.get(id=self.request.GET['contract_id'])
+                
                 }
     form_class=forms.PaymentForm
     success_url = reverse_lazy('yurjin_tour:payment_list')
